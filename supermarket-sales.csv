@@ -1,4 +1,4 @@
-﻿Order ID,Customer Name,Category,Sub Category,City,Order Date,Region,Sales,Discount,Profit,State
+﻿Order ID,Customer Name,Category,Subcategory,City,Orderdate,Region,Sales,Discount,Profit,State
 OD1,Harish,Oil & Masala,Masalas,Vellore,11-08-2017,North,1254,0.12,401.28,Tamil Nadu
 OD2,Sudha,Beverages,Health Drinks,Krishnagiri,11-08-2017,South,749,0.18,149.8,Tamil Nadu
 OD3,Hussain,Food Grains,Atta & Flour,Perambalur,06-12-2017,West,2360,0.21,165.2,Tamil Nadu
