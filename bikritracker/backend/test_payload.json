@@ -1,0 +1,14 @@
+{
+  "product": {
+    "Category": "Beverages",
+    "Subcategory": "Juice",
+    "City": "Mumbai",
+    "Region": "West"
+  },
+  "history": [
+    {"Orderdate": "2025-08-01", "Sales": 1200},
+    {"Orderdate": "2025-08-02", "Sales": 1500},
+    {"Orderdate": "2025-08-03", "Sales": 1800}
+  ],
+  "predict_date": "2025-08-04"
+}
