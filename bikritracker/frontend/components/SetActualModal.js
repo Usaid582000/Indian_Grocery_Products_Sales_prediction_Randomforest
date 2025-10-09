@@ -32,11 +32,6 @@ export default function SetActualModal({ entry, onClose, onSave }) {
             <input className="input" type="number" value={actual} onChange={(e)=>setActual(e.target.value)} />
           </div>
 
-          <div>
-            <label className="kv">Date (optional)</label>
-            <input className="input" type="date" value={date} onChange={(e)=>setDate(e.target.value)} />
-          </div>
-
           <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:12}}>
             <button className="btn secondary" onClick={onClose}>Cancel</button>
             <button className="btn" onClick={handleSave}>Save actual</button>

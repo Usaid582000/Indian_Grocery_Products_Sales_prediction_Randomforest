@@ -11,7 +11,7 @@ export default function PredictionResult({ result }) {
       <div style={{textAlign:'center'}}>
         <div className="result-big">₹ {Number(result.prediction).toLocaleString()}</div>
         <div className="result-range">Range: ₹ {Number(result.lower_bound).toLocaleString()} — ₹ {Number(result.upper_bound).toLocaleString()}</div>
-        <div className="small" style={{marginTop:8}}>
+        <div className="prediction-date small" style={{marginTop:8}}>
           {predDate ? `For: ${predDate}` : "For: (unknown date)"}
         </div>
       </div>

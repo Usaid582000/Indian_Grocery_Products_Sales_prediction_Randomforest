@@ -89,9 +89,9 @@ body {
 /* Table Wrapper */
 .table-wrapper {
   width: 100%;
-  overflow-x: hidden; 
-  overflow-y: auto; 
-  max-height: 65vh; 
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 65vh;
 }
 
 /* Table */
@@ -152,11 +152,11 @@ body {
   color: var(--muted);
 }
 
+/* Default .flex is row */
 .flex {
   display: flex;
   gap: 8px;
   align-items: center;
-  justify-content: center;
   flex-wrap: wrap;
 }
 
@@ -164,6 +164,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Actions specific - row on desktop, stacked on small screens */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 
 /* Modal */
@@ -257,6 +265,13 @@ textarea {
   border-radius: 8px;
 }
 
+/* Prediction date emphasised */
+.prediction-date {
+  font-weight: 700;
+  color: var(--accent-dark);
+  font-size: 15px;
+}
+
 /* Footer */
 .footer {
   margin-top: 18px;
@@ -302,10 +317,8 @@ textarea {
   color: var(--muted);
 }
 
-
-
 /* =========================
-   ✅ MOBILE OPTIMIZATION
+   MOBILE OPTIMIZATION
    ========================= */
 @media (max-width: 768px) {
   .container {
@@ -365,9 +378,14 @@ textarea {
     white-space: nowrap;
   }
 
-} 
+  /* Actions stack on small screens */
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 
-/* ✅ Extra small devices */
+/* Extra small devices */
 @media (max-width: 480px) {
   .btn {
     font-size: 11px;

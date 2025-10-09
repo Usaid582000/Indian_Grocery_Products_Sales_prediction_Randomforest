@@ -7,7 +7,7 @@ export default function PredictionHistory({ predictions, onDelete, onRecordActua
       <div className="productlist-header" style={{marginBottom:6}}>
         <div className="productlist-info">
           <h2>Prediction History</h2>
-          <div className="small">Saved predictions (local only)</div>
+          <div className="small">Saved predictions</div>
         </div>
       </div>
 
@@ -35,8 +35,8 @@ export default function PredictionHistory({ predictions, onDelete, onRecordActua
                   <td data-label="Actual">{(r.actual === null || r.actual === undefined) ? "-" : `₹ ${Number(r.actual).toLocaleString()}`}</td>
                   <td data-label="Accuracy">{(r.accuracy === null || r.accuracy === undefined) ? "-" : `${r.accuracy}%`}</td>
                   <td data-label="Actions">
-                    <div className="flex">
-                      <button className="btn secondary" onClick={()=>onRecordActual(r)}>Record Actual</button>
+                    <div className="actions">
+                      <button className="btn secondary" onClick={()=>onRecordActual(r)}>Set Sales</button>
                       <button className="btn danger" onClick={()=>onDelete(r.id)}>Delete</button>
                     </div>
                   </td>

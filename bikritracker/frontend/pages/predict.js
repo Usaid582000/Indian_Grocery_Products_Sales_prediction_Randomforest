@@ -6,7 +6,7 @@ import { predictSales } from "../lib/api";
 import PredictionResult from "../components/PredictionResult";
 import PredictionHistory from "../components/PredictionHistory";
 import SetActualModal from "../components/SetActualModal";
-import { loadPredictions, addPrediction, updatePrediction, deletePrediction } from "../lib/storage";
+import { loadPredictions, addOrUpdatePrediction, updatePrediction, deletePrediction } from "../lib/storage";
 
 function genId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
@@ -39,7 +39,7 @@ export default function PredictPage(){
 
       setResult(resp);
 
-      // Add prediction to history (local)
+      // Add or update prediction in history (local)
       const predObj = {
         id: genId(),
         productName: p.name || `${p.category || ""} ${p.subcategory || ""}`.trim(),
@@ -49,7 +49,7 @@ export default function PredictPage(){
         actual: null,
         accuracy: null
       };
-      const list = addPrediction(predObj);
+      const list = addOrUpdatePrediction(predObj);
       setPredictions(list);
     }catch(err){
       alert("Prediction failed: " + (err.message || err));
@@ -58,7 +58,7 @@ export default function PredictPage(){
   };
 
   const handleDeletePrediction = (id) => {
-    if(!confirm("Delete this prediction from local history?")) return;
+    if(!confirm("Delete this prediction?")) return;
     const out = deletePrediction(id);
     setPredictions(out);
   };
@@ -88,6 +88,7 @@ export default function PredictPage(){
     const updated = updatePrediction(id, updates);
     setPredictions(updated);
     setActiveEntry(null);
+    setShowActualModal(false);
   };
 
   return (
@@ -96,7 +97,7 @@ export default function PredictPage(){
       <div className="container">
         <div className="card">
           <h2 style={{margin:0}}>Predict Sales</h2>
-          <div className="small" style={{marginTop:8}}>Select one of your local products and click Predict. Local data is never uploaded permanently.</div>
+          <div className="small" style={{marginTop:8}}>Select one of your local products and click Predict.</div>
 
           <div style={{marginTop:12}}>
             <select className="input" value={selectedIdx} onChange={(e)=>setSelectedIdx(e.target.value)}>

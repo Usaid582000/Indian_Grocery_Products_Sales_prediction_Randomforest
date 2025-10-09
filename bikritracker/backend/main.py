@@ -3,6 +3,7 @@ import os
 import tempfile
 import urllib.request
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError
 import pandas as pd
 import numpy as np
@@ -27,6 +28,7 @@ app.add_middleware(
 # Load Model (from MODEL_PATH env var or local file)
 # -----------------------------
 MODEL_PATH = os.environ.get("MODEL_PATH", "sales_model_v1.joblib")
+META_CSV_PATH = os.environ.get("META_CSV_PATH", "supermarket-sales.csv")
 
 def load_model(path):
     # If path looks like a URL, download to a tmp file first
@@ -67,11 +69,46 @@ class PredictRequest(BaseModel):
     predict_date: str
 
 # -----------------------------
+# Utility: read CSV unique options (Category, Subcategory)
+# -----------------------------
+def read_meta_options(csv_path: str):
+    if not csv_path:
+        return {"categories": [], "subcategories": []}
+    # support remote URLs
+    try:
+        if str(csv_path).lower().startswith("http://") or str(csv_path).lower().startswith("https://"):
+            tmpf = os.path.join(tempfile.gettempdir(), "meta_source.csv")
+            urllib.request.urlretrieve(csv_path, tmpf)
+            df = pd.read_csv(tmpf)
+        else:
+            if not os.path.exists(csv_path):
+                return {"categories": [], "subcategories": []}
+            df = pd.read_csv(csv_path)
+    except Exception:
+        return {"categories": [], "subcategories": []}
+    cats = []
+    subs = []
+    if "Category" in df.columns:
+        cats = sorted([str(x).strip() for x in df["Category"].dropna().unique()])
+    if "Subcategory" in df.columns:
+        subs = sorted([str(x).strip() for x in df["Subcategory"].dropna().unique()])
+    return {"categories": cats, "subcategories": subs}
+
+# -----------------------------
 # Routes
 # -----------------------------
 @app.get("/health")
 def health_check():
     return {"status": "ok", "model_version": "v1.0"}
+
+@app.get("/meta/options")
+def meta_options():
+    """
+    Return lists of categories and subcategories from the CSV (if available).
+    Frontend uses this to populate datalist options for Category/Subcategory.
+    """
+    opts = read_meta_options(META_CSV_PATH)
+    return JSONResponse(content=opts)
 
 @app.post("/predict")
 async def predict_sales(request: Request):
