@@ -1,14 +1,14 @@
 {
   "product": {
-    "Category": "Beverages",
-    "Subcategory": "Juice",
-    "City": "Mumbai",
-    "Region": "West"
+    "Category": "Eggs, Meat & Fish",
+    "Subcategory": "Eggs",
+    "City": "Namakkal",
+    "Region": "South"
   },
   "history": [
-    {"Orderdate": "2025-08-01", "Sales": 1200},
-    {"Orderdate": "2025-08-02", "Sales": 1500},
-    {"Orderdate": "2025-08-03", "Sales": 1800}
+    {"Orderdate": "2025-05-01", "Sales": 1},
+    {"Orderdate": "2025-06-01", "Sales": 2},
+    {"Orderdate": "2025-07-01", "Sales": 3}
   ],
-  "predict_date": "2025-08-04"
+  "predict_date": "2025-08-01"
 }

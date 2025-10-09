@@ -50,26 +50,29 @@ export function addPrediction(pred){
 
 /**
  * addOrUpdatePrediction:
- * If a record with same productName + prediction_date exists, update 'predicted' and clear actual/accuracy.
- * Otherwise insert new (newest first).
+ * - If a record with same productName + prediction_date exists, update that record's predicted value and prediction_date,
+ *   but PRESERVE existing actual and accuracy (do not reset them).
+ * - Move the updated record to the top (newest first).
+ * - Otherwise insert the new record at the top.
  */
 export function addOrUpdatePrediction(pred) {
   try {
     const list = loadPredictions();
     const idx = list.findIndex(p => p.productName === pred.productName && p.prediction_date === pred.prediction_date);
     if (idx !== -1) {
-      // update existing
-      list[idx] = {
-        ...list[idx],
+      const existing = list[idx];
+      // Update predicted value and prediction_date, preserve actual/accuracy if present
+      const updated = {
+        ...existing,
         predicted: pred.predicted,
-        // reset actual/accuracy so user records fresh actual
-        actual: null,
-        accuracy: null
+        prediction_date: pred.prediction_date || existing.prediction_date,
+        // keep existing.actual and existing.accuracy untouched
       };
-      // move to top
-      const item = list.splice(idx, 1)[0];
-      list.unshift(item);
+      // remove old entry and put updated on top
+      list.splice(idx, 1);
+      list.unshift(updated);
     } else {
+      // no existing -> add as new
       list.unshift(pred);
     }
     savePredictions(list);
