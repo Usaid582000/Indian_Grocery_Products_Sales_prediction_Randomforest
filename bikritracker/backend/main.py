@@ -137,7 +137,7 @@ async def predict_sales(request: Request):
         upper_bound = round(pred_sales * 1.15, 2)
 
         # -----------------------------
-        # Dynamic accuracy approximation
+        # Dynamic accuracy approximation (kept for logging / extra info)
         # -----------------------------
         try:
             recent_sales = df["Sales"].dropna().tail(7)
@@ -151,11 +151,13 @@ async def predict_sales(request: Request):
         except Exception:
             smape_value = 10.0
 
+        # Send back prediction_date as the date predicted for (frontend will display this)
         return {
             "model_version": "v1.0",
             "prediction": round(float(pred_sales), 2),
             "lower_bound": lower_bound,
             "upper_bound": upper_bound,
+            "prediction_date": validated_request.predict_date,
             "historical_accuracy": {"metric": "SMAPE", "value": smape_value},
             "notes": "Prediction simulated using RandomForest ensemble confidence approximation."
         }

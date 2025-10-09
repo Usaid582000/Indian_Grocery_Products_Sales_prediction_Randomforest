@@ -1,3 +1,27 @@
+// frontend/components/ProductList.js
+import React from "react";
+
+function getLatestSalesValue(history){
+  if(!history || history.length === 0) return "-";
+  // parse dates and find the row with max date
+  try{
+    let best = history[0];
+    let bestDate = new Date(history[0].Orderdate);
+    for(let i=1;i<history.length;i++){
+      const d = new Date(history[i].Orderdate);
+      if(isNaN(d)) continue;
+      if(isNaN(bestDate) || d > bestDate){
+        bestDate = d;
+        best = history[i];
+      }
+    }
+    return best && (best.Sales !== undefined && best.Sales !== null) ? best.Sales : "-";
+  }catch(e){
+    console.error("getLatestSalesValue error", e);
+    return "-";
+  }
+}
+
 export default function ProductList({
   products,
   onEdit,
@@ -38,16 +62,16 @@ export default function ProductList({
             <tbody>
               {products.map((p, idx) => (
                 <tr key={p.id || idx}>
-                  <td>{p.name}</td>
-                  <td>{p.category}</td>
-                  <td>{p.city}</td>
-                  <td>
-                    {p.history && p.history.length
-                      ? p.history[p.history.length - 1].Sales
-                      : "-"}
+                  <td data-label="Product">{p.name}</td>
+                  <td data-label="Category">{p.category}</td>
+                  <td data-label="City">{p.city}</td>
+                  <td data-label="Last Sales">
+                    {getLatestSalesValue(p.history)}
                   </td>
-                  <td>{p.history ? p.history.length : 0}</td>
-                  <td>
+                  <td data-label="History">
+                    {p.history ? p.history.length : 0}
+                  </td>
+                  <td data-label="Actions">
                     <div className="flex">
                       <button
                         className="btn secondary"
