@@ -1,0 +1,6 @@
+# Ignore the virtual environment directory
+.env/
+
+# You can add other common ignore rules too:
+__pycache__/
+*.pyc
