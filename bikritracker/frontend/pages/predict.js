@@ -1,4 +1,4 @@
-// pages/predict.js
+// frontend/pages/predict.js
 import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { loadProducts } from "../lib/storage";
@@ -93,15 +93,17 @@ export default function PredictPage() {
         product: {
           Category: p.category || "",
           Subcategory: p.subcategory || "",
-          City: p.city || "",
+          City: p.city || "",      // product may not have city; backend accepts empty
           Region: p.region || "",
         },
         history: p.history,
         predict_date,
       });
 
+      // display backend response
       setResult(resp);
 
+      // Add or update prediction in local history (unique by productName + date)
       const predObj = {
         id: genId(),
         productName:
@@ -111,6 +113,7 @@ export default function PredictPage() {
         predicted: resp.prediction,
         actual: null,
         accuracy: null,
+        price: p.price || null,   // store price locally to compute units
       };
 
       const list = addOrUpdatePrediction(predObj);
@@ -161,6 +164,10 @@ export default function PredictPage() {
     setActiveEntry(null);
     setShowActualModal(false);
   };
+
+  // compute the selected product's price for passing to PredictionResult
+  const selectedProduct = selectedIdx === "" ? null : products[selectedIdx];
+  const selectedPrice = selectedProduct ? (selectedProduct.price || null) : null;
 
   return (
     <>
@@ -213,11 +220,10 @@ export default function PredictPage() {
                 <option value="custom">Custom date</option>
               </select>
             </div>
-            
+
             {/* Show date picker only if custom */}
             {dateOption === "custom" && (
-              <div className="date-field" style={{ minWidth: 170}}>
-                <br />
+              <div className="date-field" style={{ minWidth: 170, marginLeft: 12 }}>
                 <input
                   type="date"
                   className="input"
@@ -242,7 +248,7 @@ export default function PredictPage() {
 
         {result && (
           <div style={{ marginTop: 12 }}>
-            <PredictionResult result={result} />
+            <PredictionResult result={result} price={selectedPrice} />
           </div>
         )}
 
@@ -266,4 +272,3 @@ export default function PredictPage() {
     </>
   );
 }
- 

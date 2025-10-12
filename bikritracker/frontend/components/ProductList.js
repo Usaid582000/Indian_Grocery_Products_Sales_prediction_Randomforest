@@ -22,6 +22,13 @@ function getLatestSalesValue(history){
   }
 }
 
+function formatPrice(p){
+  if(p === null || p === undefined || p === "") return "-";
+  const n = Number(p);
+  if(Number.isNaN(n)) return "-";
+  return `₹ ${n.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})}`;
+}
+
 export default function ProductList({
   products,
   onEdit,
@@ -53,7 +60,7 @@ export default function ProductList({
               <tr>
                 <th>Product</th>
                 <th>Category</th>
-                <th>City</th>
+                <th>Price</th> {/* replaced City -> Price */}
                 <th>Last Sales</th>
                 <th>History</th>
                 <th>Actions</th>
@@ -64,7 +71,7 @@ export default function ProductList({
                 <tr key={p.id || idx}>
                   <td data-label="Product">{p.name}</td>
                   <td data-label="Category">{p.category}</td>
-                  <td data-label="City">{p.city}</td>
+                  <td data-label="Price">{formatPrice(p.price)}</td>
                   <td data-label="Last Sales">
                     {getLatestSalesValue(p.history)}
                   </td>
