@@ -9,9 +9,9 @@ export default function ProductModal({ initial, onClose, onSave }) {
     name: "",
     category: "",
     subcategory: "",
-    // city removed per request
+    city: "",
     region: "",
-    price: "",        // NEW
+    price: "",       
     history: []
   };
   const [product, setProduct] = useState(init);
@@ -68,7 +68,9 @@ export default function ProductModal({ initial, onClose, onSave }) {
       alert("Please enter at least 30 history rows for best predictions.");
       return;
     }
-
+    if (!product.city || !product.city.trim()) {
+      alert("City is required");
+    }
     // convert sales to numbers & ensure date format
     const hist = (product.history||[]).map(h=>({ Orderdate: h.Orderdate, Sales: Number(h.Sales || 0) }));
     onSave({...product, history:hist, price: priceNum});
@@ -113,6 +115,15 @@ export default function ProductModal({ initial, onClose, onSave }) {
               className="input"
               value={product.price}
               onChange={(e)=>update("price", e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="kv">City *</label>
+            <input
+              className="input"
+              value={product.city}
+              onChange={(e) => update("city", e.target.value)}
             />
           </div>
 
