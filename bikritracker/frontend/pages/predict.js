@@ -223,7 +223,8 @@ export default function PredictPage() {
 
             {/* Show date picker only if custom */}
             {dateOption === "custom" && (
-              <div className="date-field" style={{ minWidth: 170, marginLeft: 12 }}>
+              <div className="date-field" style={{ minWidth: 170 }}>
+                <br />
                 <input
                   type="date"
                   className="input"
