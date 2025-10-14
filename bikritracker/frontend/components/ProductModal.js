@@ -11,7 +11,7 @@ export default function ProductModal({ initial, onClose, onSave }) {
     subcategory: "",
     city: "",
     region: "",
-    price: "",       
+    price: "",
     history: []
   };
   const [product, setProduct] = useState(init);
@@ -54,8 +54,8 @@ export default function ProductModal({ initial, onClose, onSave }) {
       alert("Category is required");
       return;
     }
-    if(!product.subcategory || !product.subcategory.trim()){
-      alert("Subcategory is required");
+    if(!product.history || product.history.length < 30){
+      alert("Please enter at least 30 history rows for best predictions.");
       return;
     }
     // price validation
@@ -64,13 +64,11 @@ export default function ProductModal({ initial, onClose, onSave }) {
       alert("Please enter a valid positive price.");
       return;
     }
-    if(!product.history || product.history.length < 30){
-      alert("Please enter at least 30 history rows for best predictions.");
-      return;
-    }
     if (!product.city || !product.city.trim()) {
       alert("City is required");
+      return;
     }
+
     // convert sales to numbers & ensure date format
     const hist = (product.history||[]).map(h=>({ Orderdate: h.Orderdate, Sales: Number(h.Sales || 0) }));
     onSave({...product, history:hist, price: priceNum});
@@ -120,11 +118,7 @@ export default function ProductModal({ initial, onClose, onSave }) {
 
           <div>
             <label className="kv">City *</label>
-            <input
-              className="input"
-              value={product.city}
-              onChange={(e) => update("city", e.target.value)}
-            />
+            <input className="input" value={product.city} onChange={(e)=>update("city", e.target.value)} />
           </div>
 
           <div>

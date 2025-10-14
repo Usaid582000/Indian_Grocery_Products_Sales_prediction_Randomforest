@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Health Drinks",
+    "category": "Beverages",
+    "subcategory": "Health Drinks",
+    "price": 183,
+    "sample_note": "Avg sale: 1,462 (count 719)"
+  },
+  {
+    "name": "Soft Drinks",
+    "category": "Beverages",
+    "subcategory": "Soft Drinks",
+    "price": 190,
+    "sample_note": "Avg sale: 1,518 (count 681)"
+  },
+  {
+    "name": "Cookies",
+    "category": "Snacks",
+    "subcategory": "Cookies",
+    "price": 185,
+    "sample_note": "Avg sale: 1,477 (count 520)"
+  },
+  {
+    "name": "Breads & Buns",
+    "category": "Bakery",
+    "subcategory": "Breads & Buns",
+    "price": 185,
+    "sample_note": "Avg sale: 1,479 (count 502)"
+  },
+  {
+    "name": "Chocolates",
+    "category": "Snacks",
+    "subcategory": "Chocolates",
+    "price": 184,
+    "sample_note": "Avg sale: 1,471 (count 499)"
+  },
+  {
+    "name": "Noodles",
+    "category": "Snacks",
+    "subcategory": "Noodles",
+    "price": 186,
+    "sample_note": "Avg sale: 1,486 (count 495)"
+  },
+  {
+    "name": "Masalas",
+    "category": "Oil & Masala",
+    "subcategory": "Masalas",
+    "price": 188,
+    "sample_note": "Avg sale: 1,506 (count 463)"
+  },
+  {
+    "name": "Biscuits",
+    "category": "Bakery",
+    "subcategory": "Biscuits",
+    "price": 186,
+    "sample_note": "Avg sale: 1,490 (count 459)"
+  }
+]

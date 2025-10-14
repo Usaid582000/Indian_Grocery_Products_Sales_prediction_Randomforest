@@ -6,6 +6,7 @@ import { predictSales } from "../lib/api";
 import PredictionResult from "../components/PredictionResult";
 import PredictionHistory from "../components/PredictionHistory";
 import SetActualModal from "../components/SetActualModal";
+import PredictionChart from "../components/PredictionChart";
 import {
   loadPredictions,
   addOrUpdatePrediction,
@@ -43,6 +44,7 @@ export default function PredictPage() {
 
   // new state for dropdown
   const [dateOption, setDateOption] = useState("1month");
+  const [chartType, setChartType] = useState("line");
 
   useEffect(() => {
     setProducts(loadProducts());
@@ -72,7 +74,6 @@ export default function PredictPage() {
         setSelectedDate(addDaysToDate(90));
         break;
       case "custom":
-        // keep current selectedDate until user changes it
         break;
       default:
         setSelectedDate(defaultNextMonthDateISO());
@@ -93,17 +94,15 @@ export default function PredictPage() {
         product: {
           Category: p.category || "",
           Subcategory: p.subcategory || "",
-          City: p.city || "",      // product may not have city; backend accepts empty
+          City: p.city || "",
           Region: p.region || "",
         },
         history: p.history,
         predict_date,
       });
 
-      // display backend response
       setResult(resp);
 
-      // Add or update prediction in local history (unique by productName + date)
       const predObj = {
         id: genId(),
         productName:
@@ -113,7 +112,7 @@ export default function PredictPage() {
         predicted: resp.prediction,
         actual: null,
         accuracy: null,
-        price: p.price || null,   // store price locally to compute units
+        price: p.price || null,
       };
 
       const list = addOrUpdatePrediction(predObj);
@@ -184,6 +183,7 @@ export default function PredictPage() {
             className="form-inline"
             style={{ marginTop: 12, alignItems: "center" }}
           >
+
             {/* Product Selector */}
             <div style={{ flex: "1 1 320px", minWidth: 180 }}>
               <select
@@ -252,6 +252,11 @@ export default function PredictPage() {
             <PredictionResult result={result} price={selectedPrice} />
           </div>
         )}
+
+        {/* Chart built from prediction history (actual & predicted) */}
+        <div style={{ marginTop: 12 }}>
+          <PredictionChart predictions={predictions} />
+        </div>
 
         <PredictionHistory
           predictions={predictions}
