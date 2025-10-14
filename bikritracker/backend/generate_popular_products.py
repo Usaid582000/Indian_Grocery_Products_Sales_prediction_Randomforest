@@ -11,6 +11,7 @@ import pandas as pd
 import json
 import os
 import numpy as np
+import random
 
 def main(args):
     df = pd.read_csv(args.csv)
@@ -27,22 +28,22 @@ def main(args):
     ).reset_index().sort_values(["count", "avg_sales"], ascending=[False, False])
 
     templates = []
-    for _, row in grp.head(8).iterrows():
+    for _, row in grp.head(9).iterrows():
         # create a plausible price: round(avg_sales / 10) fallback if nan
         avg = row["avg_sales"]
         price = 50
         try:
             if not np.isnan(avg) and avg > 0:
                 # choose price as something reasonable relative to avg sale (not exact science)
-                price = max(10, round(avg / 8.0))
+                price = max(10, round((avg / 18.0) * random.uniform(0.7, 1.0)))
         except Exception:
             price = 50
         templates.append({
-            "name": f"{row['Subcategory']} ({row['Category']})",
+            "name": f"{row['Subcategory']}",
             "category": row["Category"],
             "subcategory": row["Subcategory"],
             "price": int(price),
-            "sample_note": f"Avg sale: {round(row['avg_sales'] or 0):,} (count {int(row['count'])})"
+            "sample_note": f"Avg Daily Sale: {round(row['avg_sales'] or 0):,} (count {int(row['count'])})"
         })
 
     out = args.out

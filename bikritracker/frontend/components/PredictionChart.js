@@ -82,7 +82,7 @@ export default function PredictionChart({ predictions = [], width = 900, height 
   return (
     <div className="card" style={{ padding: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <div style={{ fontWeight: 700 }}>Prediction Accuracy</div>
+        <div style={{ fontWeight: 700 }}>Sales Trend</div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13 }}>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <div style={{ width: 12, height: 8, background: "#f97316", borderRadius: 2 }} /> Actual

@@ -54,10 +54,10 @@ export default function ProductModal({ initial, onClose, onSave }) {
       alert("Category is required");
       return;
     }
-    if(!product.history || product.history.length < 30){
-      alert("Please enter at least 30 history rows for best predictions.");
-      return;
-    }
+    // if(!product.history || product.history.length < 30){   //Temporarily 
+    //   alert("Please enter at least 30 history rows for best predictions.");
+    //   return;
+    // }
     // price validation
     const priceNum = Number(product.price);
     if(Number.isNaN(priceNum) || priceNum <= 0){

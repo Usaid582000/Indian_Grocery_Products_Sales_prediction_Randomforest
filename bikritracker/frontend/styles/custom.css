@@ -147,43 +147,6 @@ body {
   opacity: 0.92;
 }
 
-/* Hero */
-.hero {
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 22px;
-  align-items: start;
-  margin-bottom: 18px;
-}
-
-.hero-left h1 {
-  font-size: 36px;
-  color: var(--accent-dark);
-  margin: 0 0 8px 0;
-}
-
-.hero-sub {
-  color: var(--muted);
-  font-size: 16px;
-  margin-top: 6px;
-  max-width: 560px;
-}
-
-.hero-cta {
-  background: var(--accent-dark);
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.hero-features {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  align-items: start;
-}
-
 /* Template card on hero */
 .template-card {
   border-radius: 8px;
@@ -331,6 +294,7 @@ textarea {
   text-align: center;
   color: var(--muted);
   font-size: 13px;
+  padding-bottom: 1rem;
 }
 
 /* Header inside ProductList */
@@ -483,74 +447,159 @@ textarea {
     white-space: nowrap;
   }
 }
+/* --------------------------
+  ADDITIONS / MODIFICATIONS
+   area chart + features
+   -------------------------- */
 
-.centered-hero {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 18px 0;
-}
-
-.hero-inner {
-  width: 100%;
+   /* ---- HERO (unified) ----
+   - ensures left+right match height
+   - increases vertical spacing across the page
+   - makes hero-left use same .btn sizing
+   - area chart card fills full height
+*/
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;               /* increased horizontal gap */
+  align-items: stretch;    /* ensure both columns stretch to same height */
+  margin-bottom: 28px;     /* more vertical breathing room */
   max-width: 980px;
-  padding: 20px;
-  border-radius: 12px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.hero-top {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.hero-body {
-  padding: 8px 6px 0 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* headline and gradient highlight */
-.hero-headline {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 0;
-  line-height: 1.05;
-}
-
-.gradient-text {
-  background: linear-gradient(90deg, #f97316, #c2410c);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* logo wrapper used in home */
-.hero-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* template card (small) */
-.template-card {
-  padding: 12px;
-  border-radius: 10px;
-  background: #fffaf5;
-  border: 1px solid #fff0e0;
+/* left hero container: white card + layout so content spaces evenly */
+.hero-left {
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-/* lead CTA on hero */
-.hero-cta {
-  font-weight: 700;
-  padding: 10px 18px;
-  border-radius: 10px;
+  justify-content: space-between; /* evenly spaced items - undo this to revert */
+  background: var(--card);
+  border-radius: 12px;
   box-shadow: 0 6px 18px rgba(12,12,12,0.04);
 }
 
-/* ensure consistent spacing with existing productlist-card */
-.template-head { display:flex; justify-content:space-between; align-items:center; }
+/* make sure left headline gradient text remains */
+.hero-left .hero-headline,
+.hero-left h1 {
+  font-size: 36px;
+  margin: 0 0 8px 0;
+  line-height: 1.06;
+  background: linear-gradient(90deg, #c2410c, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* right (chart) card matches height of left due to align-items:stretch on .hero */
+.accuracy-card {
+  background: linear-gradient(180deg, #fff, #fffaf6);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(12,12,12,0.06);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* unify hero buttons so they match other .btn sizing/styling */
+.hero-left .btn {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+.hero-left .btn.secondary {
+  background: #f3f4f6;
+  color: #111;
+}
+
+/* give page more vertical spacing overall */
+.container {
+  max-width: 980px;
+  margin: 28px auto;   /* increased top/bottom margin */
+  padding: 0 18px;
+}
+
+/* area chart shading -- ensure it appears slightly stronger */
+.accuracy-card path[fill] {
+  opacity: 0.95;
+}
+
+
+/* metrics mini-cards */
+.metric-card {
+  background: #fff8f3;
+  border: 1px solid #fff0e0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  min-width: 110px;
+  text-align: left;
+}
+
+/* accuracy card on right */
+.accuracy-card {
+  background: linear-gradient(180deg, #fff, #fffaf6);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(12,12,12,0.06);
+}
+
+/* small badge showing latest accuracy */
+.accuracy-badge {
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  padding: 6px 10px;
+  border-radius: 10px;
+  text-align: right;
+  min-width: 84px;
+}
+
+/* feature cards */
+.feature-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #fff0e0;
+  background: #fff;
+}
+
+/* icon circle inside feature card */
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f97316, #c2410c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex: 0 0 48px;
+}
+
+/* template card style (already present earlier) */
+.template-card {
+  border-radius: 8px;
+  padding: 12px;
+  background: #fffaf5;
+  border: 1px solid #fff0e0;
+}
+
+/* small responsiveness changes */
+@media (max-width: 920px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .hero-left {
+    padding: 18px;
+  }
+  .hero-left h1 {
+    font-size: 32px;
+    line-height: 1.08;
+  }
+  .accuracy-card {
+    width: 100%;
+  }
+}
