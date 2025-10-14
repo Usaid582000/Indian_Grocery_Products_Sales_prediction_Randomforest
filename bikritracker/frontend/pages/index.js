@@ -289,7 +289,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
+        <br />
         {/* FEATURES */}
         <section style={{ marginTop: 26 }}>
           <div style={{ textAlign: "center", marginBottom: 14 }}>
