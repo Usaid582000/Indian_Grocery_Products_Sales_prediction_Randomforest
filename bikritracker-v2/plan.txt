@@ -1,0 +1,159 @@
+
+---
+
+## Stack Decision
+
+**Frontend:** Next.js — better than plain React here because of API routes (we can proxy FastAPI calls without exposing the backend URL to the client), SSR for the dashboard, and easier deployment.
+
+**Backend:** FastAPI — stays for ML predictions.
+
+**Database:** Firebase Firestore — real-time sync, works perfectly for a single grocery store owner who might use phone + laptop simultaneously. No separate DB server to manage.
+
+**Auth:** Firebase Authentication (email/password).
+
+**ML Strategy:** Instead of a static `.joblib` file, every time a user adds/updates sales history in Firestore, the backend fetches their actual data from Firestore and retrains a lightweight per-user model (Random Forest with scikit-learn). This means predictions improve as the user enters more data. Model gets cached server-side per user.
+
+**Voice:** Web Speech API — completely free, built into Chrome/Edge/Safari.
+
+**QR:** `html5-qrcode` library — free, handles both device camera scanning of barcodes (EAN-13, QR codes) and custom QR codes. For existing product barcodes, we call Open Food Facts API (free) to fetch product name/category.
+
+---
+
+## Project Structure
+
+```
+bikritracker-v2/
+│
+├── frontend/                          # Next.js 14
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Layout.jsx             # Wraps all pages
+│   │   │   ├── Sidebar.jsx            # Desktop sidebar nav
+│   │   │   └── BottomNav.jsx          # Mobile bottom nav
+│   │   │
+│   │   ├── dashboard/
+│   │   │   ├── StatsRow.jsx           # Total products, predictions, avg accuracy
+│   │   │   ├── SalesTrendChart.jsx    # Recharts area chart of recent sales
+│   │   │   ├── TopProductsChart.jsx   # Bar chart of top 5 products by sales
+│   │   │   └── RecentPredictions.jsx  # Last 5 predictions table
+│   │   │
+│   │   ├── inventory/
+│   │   │   ├── ProductTable.jsx       # List/card view of products
+│   │   │   ├── ProductModal.jsx       # Add/edit product form
+│   │   │   ├── QRScannerModal.jsx     # Camera QR/barcode scanner
+│   │   │   ├── VoiceInputButton.jsx   # Mic button + Web Speech API
+│   │   │   └── SalesHistoryTable.jsx  # Inline history editor inside modal
+│   │   │
+│   │   ├── predict/
+│   │   │   ├── PredictForm.jsx        # Product selector + date
+│   │   │   ├── PredictResultCard.jsx  # Result with range + units
+│   │   │   ├── PredictionHistory.jsx  # Table of past predictions
+│   │   │   └── AccuracyChart.jsx      # Line chart of accuracy over time
+│   │   │
+│   │   └── ui/                        # Reusable primitives
+│   │       ├── Button.jsx
+│   │       ├── Card.jsx
+│   │       ├── Input.jsx
+│   │       ├── Modal.jsx
+│   │       ├── Badge.jsx
+│   │       └── Spinner.jsx
+│   │
+│   ├── lib/
+│   │   ├── firebase.js                # Firebase init (auth + firestore)
+│   │   ├── api.js                     # Calls to FastAPI via Next.js API proxy
+│   │   ├── qrParser.js                # Parses QR/barcode scan result
+│   │   └── hooks/
+│   │       ├── useAuth.js             # Auth state
+│   │       ├── useProducts.js         # Firestore real-time product listener
+│   │       └── usePredictions.js      # Firestore real-time predictions listener
+│   │
+│   ├── pages/
+│   │   ├── _app.js
+│   │   ├── _document.js
+│   │   ├── index.js                   # Dashboard
+│   │   ├── inventory.js
+│   │   ├── predict.js
+│   │   ├── login.js
+│   │   ├── signup.js
+│   │   └── api/
+│   │       └── predict.js             # Next.js proxy route → FastAPI
+│   │
+│   ├── styles/
+│   │   └── globals.css                # Design tokens + base styles
+│   │
+│   ├── public/
+│   ├── next.config.js
+│   └── package.json
+│
+├── backend/                           # FastAPI
+│   ├── main.py                        # App entry, CORS, route registration
+│   ├── routes/
+│   │   ├── predict.py                 # POST /predict
+│   │   ├── train.py                   # POST /train (trigger retrain for user)
+│   │   └── health.py                  # GET /health
+│   │
+│   ├── ml/
+│   │   ├── trainer.py                 # Fetch user data from Firestore → train model
+│   │   ├── predictor.py               # Load cached model → run prediction
+│   │   └── feature_builder.py        # Lag/rolling feature engineering
+│   │
+│   ├── firebase_client.py             # Firebase Admin SDK init
+│   ├── model_cache/                   # Per-user model files cached here
+│   │   └── .gitkeep
+│   │
+│   ├── requirements.txt
+│   ├── .env.example
+│   └── Dockerfile
+│
+├── docker-compose.yml                 # Runs frontend + backend together
+└── README.md
+```
+
+---
+
+## Firestore Data Model
+
+```
+users/{userId}/
+    profile: { name, storeName, city, createdAt }
+
+users/{userId}/products/{productId}/
+    { name, category, subcategory, price, city, region, createdAt, updatedAt }
+
+users/{userId}/products/{productId}/history/{historyId}/
+    { orderDate, sales, createdAt }
+
+users/{userId}/predictions/{predictionId}/
+    { productId, productName, predictionDate, predicted, actual,
+      accuracy, lowerBound, upperBound, modelVersion, createdAt }
+```
+
+---
+
+## Page-by-Page Plan
+
+**Login / Signup** — Clean centered card. Email + password. Firebase Auth. Redirect to dashboard on success.
+
+**Dashboard (/)** — 4 stat cards at top (total products, total predictions, avg accuracy, last prediction). Sales trend chart using real Firestore data aggregated across all products. Top 5 products bar chart. Recent predictions list.
+
+**Inventory (/inventory)** — Product list with list/card toggle. Add button opens `ProductModal`. Inside the modal header there are 2 icon buttons: camera (QR) and mic (voice). QR scanner opens a camera overlay, scans barcode → calls Open Food Facts API to prefill name/category, or decodes a custom JSON QR. Voice button activates mic and maps spoken text to whichever field is currently focused. Sales history is editable inline in the modal.
+
+**Predict (/predict)** — Product dropdown + date selector. Predict button calls FastAPI. Result card shows predicted value, range, estimated units. Below that, accuracy chart and predictions history table with "Set Actual" action.
+
+---
+
+## Build Order
+
+1. Firebase setup + Auth pages (login, signup)
+2. Base layout (sidebar desktop, bottom nav mobile), design system
+3. Firestore hooks (useProducts, usePredictions)
+4. Inventory page — CRUD with Firestore
+5. QR scanner modal
+6. Voice input
+7. FastAPI backend with per-user model training
+8. Predict page
+9. Dashboard with charts
+10. Docker + env wiring
+
+---
+
