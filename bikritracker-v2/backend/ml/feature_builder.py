@@ -78,12 +78,19 @@ FEATURE_COLS = [
 
 def get_X_y(df: pd.DataFrame):
     """
-    Returns (X, y) dropping rows with NaN in features.
+    Returns (X, y) filling NaN features with 0 instead of dropping rows.
     X is a numpy array, y is 1-D log1p sales.
     """
-    feat_df = df[FEATURE_COLS + ["target"]].dropna()
+    feat_df = df[FEATURE_COLS + ["target"]].copy()
+
+    # Only drop rows where the TARGET is NaN (no actual sales value)
+    feat_df = feat_df[feat_df["target"].notna()].copy()
+
     if feat_df.empty:
         return None, None
+
+    # Fill missing lag/rolling features with 0 (no prior data = treat as 0)
+    feat_df[FEATURE_COLS] = feat_df[FEATURE_COLS].fillna(0)
 
     X = feat_df[FEATURE_COLS].values.astype(float)
     y = feat_df["target"].values.astype(float)
@@ -107,9 +114,12 @@ def build_prediction_row(df: pd.DataFrame, pred_date: pd.Timestamp) -> np.ndarra
     # last row = prediction row
     tail = combined.iloc[-1][FEATURE_COLS]
 
-    if tail.isnull().any():
-        # fill remaining NaN with column medians from history
-        medians = combined.iloc[:-1][FEATURE_COLS].median()
-        tail = tail.fillna(medians)
+    # if tail.isnull().any():
+    #     # fill remaining NaN with column medians from history
+    #     medians = combined.iloc[:-1][FEATURE_COLS].median()
+    #     tail = tail.fillna(medians)
+
+    # Fill any missing lags with 0 instead of medians
+    tail = tail.fillna(0)
 
     return tail.values.astype(float).reshape(1, -1)

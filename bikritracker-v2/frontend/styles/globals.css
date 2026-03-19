@@ -1660,3 +1660,437 @@ p  { color: var(--text-2); }
   font-size: 12px !important;
   color: var(--text-muted) !important;
 }
+
+/* ================================================================
+   STEP 6 — PREDICT PAGE
+   ================================================================ */
+
+/* ── Predict form grid ───────────────────────────────────────── */
+.predict-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.predict-form-full {
+  grid-column: 1 / -1;
+}
+
+/* ── Result card ─────────────────────────────────────────────── */
+.predict-result-card {
+  padding: 24px;
+  border: 1.5px solid var(--primary-muted);
+  background: linear-gradient(135deg, var(--primary-light) 0%, #fff 60%);
+  animation: result-fade-in 0.3s ease;
+}
+
+@keyframes result-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* header row */
+.prc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.prc-product {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+/* accuracy badge */
+.prc-accuracy-badge {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.prc-acc-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.prc-acc-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* central prediction value */
+.prc-main {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.prc-value {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--primary-darker);
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: -1px;
+}
+
+/* confidence interval */
+.prc-range-wrap {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 16px 0;
+}
+
+.prc-range-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.prc-range-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.prc-range-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-muted), var(--primary));
+  width: 60%;  /* visual only — the fill is decorative */
+  margin: 0 auto;
+  border-radius: var(--radius-full);
+}
+
+/* meta row */
+.prc-meta-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.prc-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.prc-meta-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Set actual modal backdrop ───────────────────────────────── */
+.modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .predict-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .prc-value { font-size: 36px; }
+  .prc-header { flex-direction: column; }
+  .prc-accuracy-badge { align-self: flex-start; }
+}
+
+/* ================================================================
+   STEP 9 — DASHBOARD
+   ================================================================ */
+
+/* ── Greeting ────────────────────────────────────────────────── */
+.dash-greeting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 4px 0 8px;
+}
+
+/* ── Stats grid ──────────────────────────────────────────────── */
+.dash-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.dash-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  border-top: 3px solid transparent;
+  padding: 18px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-md);
+}
+
+.dash-stat-card:hover {
+  box-shadow: var(--shadow);
+}
+
+.dash-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-stat-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.dash-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 5px;
+  letter-spacing: -0.5px;
+}
+
+.dash-stat-sub {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+/* ── Charts row ──────────────────────────────────────────────── */
+.dash-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dash-chart-card {
+  padding: 20px;
+  overflow: hidden;
+}
+
+.dash-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.dash-chart-empty {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  border: 1.5px dashed var(--border-strong);
+}
+
+.dash-acc-badge {
+  font-size: 13px;
+  font-weight: 700;
+  border: 1.5px solid;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Bottom row ──────────────────────────────────────────────── */
+.dash-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Product rank row ────────────────────────────────────────── */
+.dash-product-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dash-product-row:last-child {
+  border-bottom: none;
+}
+
+.dash-product-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Prediction row ──────────────────────────────────────────── */
+.dash-pred-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: border-color var(--transition);
+}
+
+.dash-pred-row:hover {
+  border-color: var(--border-strong);
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────── */
+.dash-tooltip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  box-shadow: var(--shadow-md);
+  min-width: 130px;
+}
+
+.dash-tooltip-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+/* ── No-data banner ──────────────────────────────────────────── */
+.dash-no-data {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  border: 1.5px dashed var(--border-strong);
+}
+
+/* ================================================================
+   RESPONSIVE — DASHBOARD
+   ================================================================ */
+
+/* Tablet: 2 columns for stats, 1 column for charts */
+@media (max-width: 1024px) {
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet portrait: stack charts */
+@media (max-width: 900px) {
+  .dash-charts-row {
+    grid-template-columns: 1fr;
+  }
+  .dash-bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .dash-stat-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .dash-stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dash-stat-value {
+    font-size: 22px;
+  }
+
+  .dash-stat-label {
+    font-size: 10px;
+  }
+
+  .dash-stat-sub {
+    font-size: 11px;
+  }
+
+  .dash-greeting {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .dash-chart-card {
+    padding: 16px;
+  }
+
+  .dash-chart-header {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .dash-pred-row {
+    padding: 10px 12px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .dash-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

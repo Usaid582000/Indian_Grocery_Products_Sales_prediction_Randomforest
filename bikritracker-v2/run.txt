@@ -19,5 +19,5 @@ source venv/bin/activate
 pip install -r requirements.txt
 Then run from the project root (bikritracker-v2/), not from inside backend:
 cd bikritracker-v2
-uvicorn backend.main:app --reload --port 8000
+python -m uvicorn backend.main:app --reload --port 8000
 Visit http://127.0.0.1:8000/docs — you should see the Swagger UI with all three route groups.
