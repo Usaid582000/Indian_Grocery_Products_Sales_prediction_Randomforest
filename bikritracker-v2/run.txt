@@ -1,0 +1,23 @@
+Frontend:
+Extra Files: .env.local
+npm run dev
+
+
+
+Backend:
+Extra Files: .env , firebase-service-account.json
+
+Running the backend
+cd bikritracker-v2/backend
+python -m venv venv
+
+# Windows
+venv\Scripts\Activate.ps1
+# Mac/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+Then run from the project root (bikritracker-v2/), not from inside backend:
+cd bikritracker-v2
+uvicorn backend.main:app --reload --port 8000
+Visit http://127.0.0.1:8000/docs — you should see the Swagger UI with all three route groups.
