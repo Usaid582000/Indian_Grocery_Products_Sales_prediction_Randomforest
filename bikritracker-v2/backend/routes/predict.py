@@ -5,8 +5,8 @@ POST /predict — main prediction endpoint
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 
-from ..firebase_client import get_user_product
-from ..ml.predictor import predict as run_predict
+from firebase_client import get_user_product
+from ml.predictor import predict as run_predict
 
 router = APIRouter()
 

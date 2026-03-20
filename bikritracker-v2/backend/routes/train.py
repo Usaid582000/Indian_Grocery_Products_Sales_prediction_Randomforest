@@ -6,8 +6,8 @@ GET  /train/status/{product_id} — check if model is cached and fresh
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 
-from ..firebase_client import get_user_product
-from ..ml.trainer import train_product_model, get_model_info, invalidate_cache
+from firebase_client import get_user_product
+from ml.trainer import train_product_model, get_model_info, invalidate_cache
 
 router = APIRouter()
 

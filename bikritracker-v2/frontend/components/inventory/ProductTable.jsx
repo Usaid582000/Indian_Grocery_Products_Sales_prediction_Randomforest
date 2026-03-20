@@ -75,7 +75,6 @@ function ProductCard({ p, onEdit, onDelete }) {
   return (
     <div className="pt-card">
       <div className="pt-card-top">
-        <div className="pt-card-avatar">{initials}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p className="pt-card-name">{p.name}</p>
           <p className="text-xs text-muted">{p.city || ''}</p>

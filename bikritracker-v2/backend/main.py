@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from .routes.health  import router as health_router
-from .routes.train   import router as train_router
-from .routes.predict import router as predict_router
+from routes.health  import router as health_router
+from routes.train   import router as train_router
+from routes.predict import router as predict_router
 
 app = FastAPI(
     title       = "BikriTracker ML API",

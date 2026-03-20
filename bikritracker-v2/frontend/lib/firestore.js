@@ -7,19 +7,29 @@ import {
   getDoc,
   serverTimestamp,
   writeBatch,
-} from 'firebase/firestore';
-import { db } from './firebase';
+} from "firebase/firestore";
+import { db } from "./firebase";
 
 // ─── ID generator ─────────────────────────────────────────────
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+// ─── Accuracy calculator ───────────────────────────────────────
+// Returns actual/predicted × 100, rounded to 1 decimal. No cap.
+function calcAccuracy(actual, predicted) {
+  if (!predicted || predicted === 0) return null;
+  return Math.round((actual / predicted) * 1000) / 10;
+}
+
 // ─── Collection refs ───────────────────────────────────────────
-export const productsRef   = (uid) => collection(db, 'users', uid, 'products');
-export const predictionsRef = (uid) => collection(db, 'users', uid, 'predictions');
-export const productDocRef  = (uid, pid) => doc(db, 'users', uid, 'products', pid);
-export const predDocRef     = (uid, predId) => doc(db, 'users', uid, 'predictions', predId);
+export const productsRef = (uid) => collection(db, "users", uid, "products");
+export const predictionsRef = (uid) =>
+  collection(db, "users", uid, "predictions");
+export const productDocRef = (uid, pid) =>
+  doc(db, "users", uid, "products", pid);
+export const predDocRef = (uid, predId) =>
+  doc(db, "users", uid, "predictions", predId);
 
 // ================================================================
 // PRODUCTS
@@ -32,22 +42,22 @@ export const predDocRef     = (uid, predId) => doc(db, 'users', uid, 'prediction
  */
 export async function addProduct(uid, productData) {
   const history = (productData.history || []).map((h) => ({
-    id:        h.id        || genId(),
-    orderDate: h.orderDate || h.Orderdate || '',
-    sales:     Number(h.sales || h.Sales || 0),
+    id: h.id || genId(),
+    orderDate: h.orderDate || h.Orderdate || "",
+    sales: Number(h.sales || h.Sales || 0),
   }));
 
   const payload = {
-    name:        (productData.name        || '').trim(),
-    category:    (productData.category    || '').trim(),
-    subcategory: (productData.subcategory || '').trim(),
-    price:       Number(productData.price || 0),
-    city:        (productData.city        || '').trim(),
-    region:      (productData.region      || '').trim(),
+    name: (productData.name || "").trim(),
+    category: (productData.category || "").trim(),
+    subcategory: (productData.subcategory || "").trim(),
+    price: Number(productData.price || 0),
+    city: (productData.city || "").trim(),
+    region: (productData.region || "").trim(),
     history,
     historyCount: history.length,
-    createdAt:   serverTimestamp(),
-    updatedAt:   serverTimestamp(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   };
 
   const ref = await addDoc(productsRef(uid), payload);
@@ -64,11 +74,11 @@ export async function updateProduct(uid, productId, updates) {
   // normalise history if it was passed
   if (updates.history !== undefined) {
     const history = updates.history.map((h) => ({
-      id:        h.id        || genId(),
-      orderDate: h.orderDate || h.Orderdate || '',
-      sales:     Number(h.sales || h.Sales || 0),
+      id: h.id || genId(),
+      orderDate: h.orderDate || h.Orderdate || "",
+      sales: Number(h.sales || h.Sales || 0),
     }));
-    data.history     = history;
+    data.history = history;
     data.historyCount = history.length;
   }
 
@@ -106,12 +116,12 @@ export async function getProduct(uid, productId) {
  */
 export async function addHistoryEntry(uid, productId, entry) {
   const product = await getProduct(uid, productId);
-  if (!product) throw new Error('Product not found');
+  if (!product) throw new Error("Product not found");
 
   const newEntry = {
-    id:        genId(),
-    orderDate: entry.orderDate || entry.Orderdate || '',
-    sales:     Number(entry.sales || entry.Sales || 0),
+    id: genId(),
+    orderDate: entry.orderDate || entry.Orderdate || "",
+    sales: Number(entry.sales || entry.Sales || 0),
   };
 
   const history = [...(product.history || []), newEntry];
@@ -119,7 +129,7 @@ export async function addHistoryEntry(uid, productId, entry) {
   await updateDoc(productDocRef(uid, productId), {
     history,
     historyCount: history.length,
-    updatedAt:    serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 
   return newEntry.id;
@@ -130,14 +140,14 @@ export async function addHistoryEntry(uid, productId, entry) {
  */
 export async function removeHistoryEntry(uid, productId, entryId) {
   const product = await getProduct(uid, productId);
-  if (!product) throw new Error('Product not found');
+  if (!product) throw new Error("Product not found");
 
   const history = (product.history || []).filter((h) => h.id !== entryId);
 
   await updateDoc(productDocRef(uid, productId), {
     history,
     historyCount: history.length,
-    updatedAt:    serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 }
 
@@ -147,15 +157,15 @@ export async function removeHistoryEntry(uid, productId, entryId) {
  */
 export async function replaceHistory(uid, productId, historyArray) {
   const history = historyArray.map((h) => ({
-    id:        h.id        || genId(),
-    orderDate: h.orderDate || h.Orderdate || '',
-    sales:     Number(h.sales || h.Sales || 0),
+    id: h.id || genId(),
+    orderDate: h.orderDate || h.Orderdate || "",
+    sales: Number(h.sales || h.Sales || 0),
   }));
 
   await updateDoc(productDocRef(uid, productId), {
     history,
     historyCount: history.length,
-    updatedAt:    serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 }
 
@@ -168,16 +178,16 @@ export async function replaceHistory(uid, productId, historyArray) {
  */
 export async function addPrediction(uid, predData) {
   const payload = {
-    productId:      predData.productId      || '',
-    productName:    predData.productName    || '',
-    predictionDate: predData.predictionDate || '',
-    predicted:      Number(predData.predicted  || 0),
-    lowerBound:     Number(predData.lowerBound || 0),
-    upperBound:     Number(predData.upperBound || 0),
-    actual:         predData.actual   ?? null,
-    accuracy:       predData.accuracy ?? null,
-    price:          Number(predData.price || 0),
-    createdAt:      serverTimestamp(),
+    productId: predData.productId || "",
+    productName: predData.productName || "",
+    predictionDate: predData.predictionDate || "",
+    predicted: Number(predData.predicted || 0),
+    lowerBound: Number(predData.lowerBound || 0),
+    upperBound: Number(predData.upperBound || 0),
+    actual: predData.actual ?? null,
+    accuracy: predData.accuracy ?? null,
+    price: Number(predData.price || 0),
+    createdAt: serverTimestamp(),
   };
 
   const ref = await addDoc(predictionsRef(uid), payload);
@@ -191,20 +201,12 @@ export async function updatePrediction(uid, predId, updates) {
   // if actual is being set, auto-calculate accuracy
   const data = { ...updates };
 
-  if (
-    updates.actual !== undefined &&
-    updates.actual !== null &&
-    updates.predicted !== undefined
-  ) {
-    const actual    = Number(updates.actual);
-    const predicted = Number(updates.predicted);
+  // Recalculate accuracy whenever actual or predicted changes
+  const actual    = updates.actual    !== undefined ? Number(updates.actual)    : null;
+  const predicted = updates.predicted !== undefined ? Number(updates.predicted) : null;
 
-    if (actual === 0) {
-      data.accuracy = predicted === 0 ? 100 : 0;
-    } else {
-      const pctError = (Math.abs(predicted - actual) / actual) * 100;
-      data.accuracy  = Math.max(0, Math.round((100 - pctError) * 100) / 100);
-    }
+  if (actual !== null && predicted !== null) {
+    data.accuracy = calcAccuracy(actual, predicted);
   }
 
   await updateDoc(predDocRef(uid, predId), data);
@@ -225,7 +227,7 @@ export async function deletePrediction(uid, predId) {
  * Update the user's profile document (storeName, city, etc.)
  */
 export async function updateUserProfile(uid, profileData) {
-  await updateDoc(doc(db, 'users', uid), {
+  await updateDoc(doc(db, "users", uid), {
     ...profileData,
     updatedAt: serverTimestamp(),
   });

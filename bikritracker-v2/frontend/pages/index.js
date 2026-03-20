@@ -1,5 +1,5 @@
 // pages/index.js
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   LineChart, Line, BarChart, Bar,
@@ -11,6 +11,7 @@ import { useProducts } from '../lib/hooks/useProducts';
 import { usePredictions } from '../lib/hooks/usePredictions';
 import { useDashboardStats } from '../lib/hooks/useDashboardStats';
 import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/router';
 
 /* ── palette for per-product lines ──────────────────────────── */
 const LINE_COLORS = [
@@ -139,6 +140,72 @@ function NoDataBanner({ message, hint }) {
   );
 }
 
+/*──────────Best Selling Products──────────────────── */
+const CATEGORY_COLORS = {
+  'Beverages':    '#3b82f6',
+  'Snacks':       '#f97316',
+  'Bakery':       '#f59e0b',
+  'Oil & Masala': '#10b981',
+  'Dairy':        '#8b5cf6',
+};
+
+function getCategoryColor(cat) {
+  return CATEGORY_COLORS[cat] || 'var(--primary)';
+}
+
+function BestSellingProducts({ templates }) {
+  const router = useRouter(); 
+
+  function handleAdd(t) {
+    const query = encodeURIComponent(JSON.stringify(t));
+    router.push(`/inventory?template=${query}`);
+  }
+
+  if (!templates.length) return null;
+
+  return (
+    <div className="card" style={{ padding: 24 }}>
+      <div style={{ marginBottom: 20 }}>
+        <h3 style={{ margin: 0 }}>Best Selling Products</h3>
+        <p className="text-sm text-muted" style={{ marginTop: 4 }}>
+          Popular grocery items — click Add to import straight to your inventory
+        </p>
+      </div>
+
+      <div className="bsp-grid">
+        {templates.map((t, i) => {
+          const color = getCategoryColor(t.category);
+          return (
+            <div key={i} className="bsp-card">
+              <div className="bsp-card-top">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{t.name}</p>
+                  <p className="text-xs text-muted">{t.subcategory} · {t.category}</p>
+                </div>
+                <p style={{ fontWeight: 800, fontSize: 15, color: 'var(--primary-darker)', flexShrink: 0 }}>
+                  ₹{t.price}
+                </p>
+              </div>
+
+              <p className="text-xs text-muted" style={{ margin: '8px 0 12px', lineHeight: 1.5 }}>
+                {t.sample_note}
+              </p>
+
+              <button
+                className="btn btn-primary btn-sm"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => handleAdd(t)}
+              >
+                + Add to Inventory
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Dashboard ─────────────────────────────────────────── */
 export default function Dashboard() {
   const { user } = useAuth();
@@ -160,6 +227,15 @@ export default function Dashboard() {
     stats.avgAccuracy == null ? 'var(--text-muted)' :
     stats.avgAccuracy >= 80   ? 'var(--success)'    :
     stats.avgAccuracy >= 60   ? 'var(--warning)'    : 'var(--error)';
+  
+  const [templates, setTemplates] = useState([]);
+
+  useEffect(() => {
+    fetch('/popular_products.json')
+      .then(r => r.ok ? r.json() : [])
+      .then(d => setTemplates(Array.isArray(d) ? d : []))
+      .catch(() => setTemplates([]));
+  }, []);
 
   return (
     <Layout title="Dashboard">
@@ -511,6 +587,8 @@ export default function Dashboard() {
 
         </div>
 
+        {/* ── Best Selling Products ─────────────────────────────── */}
+        <BestSellingProducts templates={templates} />
       </div>
     </Layout>
   );

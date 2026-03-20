@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bikritracker-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/model_cache:/app/model_cache
+      - ./backend/firebase-service-account.json:/app/firebase-service-account.json:ro
+    env_file:
+      - .env.docker
+      = ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bikritracker-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.local
+    depends_on:
+      - backend
+    restart: unless-stopped
