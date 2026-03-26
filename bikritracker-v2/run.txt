@@ -1,5 +1,7 @@
 Frontend:
 Extra Files: .env.local
+
+cd bikritracker-v2/frontend
 npm run dev
 
 

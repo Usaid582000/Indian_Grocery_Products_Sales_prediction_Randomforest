@@ -13,6 +13,8 @@ import { useDashboardStats } from '../lib/hooks/useDashboardStats';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 
+const MAX_CHART_PRODUCTS = 4;
+
 /* ── palette for per-product lines ──────────────────────────── */
 const LINE_COLORS = [
   'var(--primary)',
@@ -37,23 +39,39 @@ function greeting() {
 
 /* ── Build per-product trend data for LineChart ─────────────── */
 function buildProductTrendData(products) {
-  // take top 5 products by total history count
+  // take top products by total history count
   const top = [...products]
-    .sort((a, b) => (b.historyCount ?? (b.history || []).length) - (a.historyCount ?? (a.history || []).length))
-    .slice(0, 5);
+        .sort((a, b) =>
+      (b.historyCount ?? (b.history || []).length) -
+      (a.historyCount ?? (a.history || []).length)
+    )
+    .slice(0, MAX_CHART_PRODUCTS);
 
   if (!top.length) return { data: [], products: [] };
 
-  // collect all dates across top products (last 30 days)
-  const thirtyAgo = new Date();
-  thirtyAgo.setDate(thirtyAgo.getDate() - 30);
+  // Find the most recent date across all top products
+  // (instead of hardcoding "today" — handles data in any time range)
+  let maxDate = null;
+  top.forEach((p) => {
+    (p.history || []).forEach((h) => {
+      if (!h.orderDate) return;
+      const d = new Date(h.orderDate);
+      if (!maxDate || d > maxDate) maxDate = d;
+    });
+  });
+  if (!maxDate) return { data: [], products: top };
 
+  // Show last 30 days anchored to the most recent entry
+  const cutoff = new Date(maxDate);
+  cutoff.setDate(cutoff.getDate() - 29);
+
+  // Collect every date that falls within the window across all top products
   const dateSet = new Set();
   top.forEach((p) => {
     (p.history || []).forEach((h) => {
-      if (h.orderDate && new Date(h.orderDate) >= thirtyAgo) {
-        dateSet.add(h.orderDate);
-      }
+            if (!h.orderDate) return;
+      const d = new Date(h.orderDate);
+      if (d >= cutoff && d <= maxDate) dateSet.add(h.orderDate);
     });
   });
 
@@ -64,7 +82,9 @@ function buildProductTrendData(products) {
   const data = sortedDates.map((date) => {
     const row = {
       date,
-      label: new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+      label: new Date(date).toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short',
+      }),
     };
     top.forEach((p) => {
       const entry = (p.history || []).find((h) => h.orderDate === date);
@@ -154,7 +174,7 @@ function getCategoryColor(cat) {
 }
 
 function BestSellingProducts({ templates }) {
-  const router = useRouter(); 
+  const router = useRouter();
 
   function handleAdd(t) {
     const query = encodeURIComponent(JSON.stringify(t));
@@ -171,36 +191,30 @@ function BestSellingProducts({ templates }) {
           Popular grocery items — click Add to import straight to your inventory
         </p>
       </div>
-
       <div className="bsp-grid">
-        {templates.map((t, i) => {
-          const color = getCategoryColor(t.category);
-          return (
-            <div key={i} className="bsp-card">
-              <div className="bsp-card-top">
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{t.name}</p>
-                  <p className="text-xs text-muted">{t.subcategory} · {t.category}</p>
-                </div>
-                <p style={{ fontWeight: 800, fontSize: 15, color: 'var(--primary-darker)', flexShrink: 0 }}>
-                  ₹{t.price}
-                </p>
+        {templates.map((t, i) => (
+          <div key={i} className="bsp-card">
+            <div className="bsp-card-top">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{t.name}</p>
+                <p className="text-xs text-muted">{t.subcategory} · {t.category}</p>
               </div>
-
-              <p className="text-xs text-muted" style={{ margin: '8px 0 12px', lineHeight: 1.5 }}>
-                {t.sample_note}
+              <p style={{ fontWeight: 800, fontSize: 15, color: 'var(--primary-darker)', flexShrink: 0 }}>
+                ₹{t.price}
               </p>
-
-              <button
-                className="btn btn-primary btn-sm"
-                style={{ width: '100%', justifyContent: 'center' }}
-                onClick={() => handleAdd(t)}
-              >
-                + Add to Inventory
-              </button>
             </div>
-          );
-        })}
+            <p className="text-xs text-muted" style={{ margin: '8px 0 12px', lineHeight: 1.5 }}>
+              {t.sample_note}
+            </p>
+            <button
+              className="btn btn-primary btn-sm"
+              style={{ width: '100%', justifyContent: 'center' }}
+              onClick={() => handleAdd(t)}
+            >
+              + Add to Inventory
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -223,11 +237,34 @@ export default function Dashboard() {
     [products]
   );
 
+  // Cap top products to MAX_CHART_PRODUCTS for display
+  const displayTopProducts = useMemo(
+    () => stats.topProducts.slice(0, MAX_CHART_PRODUCTS),
+    [stats.topProducts]
+  );
+
+  // ── Stable color map shared between both charts ──────────────
+  // Sort all product IDs so the same product always gets the same color
+  // regardless of which chart it appears in or how it's sorted.
+  const productColorMap = useMemo(() => {
+    const allIds = [
+      ...new Set([
+        ...trendProducts.map(p => p.id),
+        ...displayTopProducts.map(p => p.id),
+      ]),
+    ].sort(); // sort for stable ordering
+    const map = {};
+    allIds.forEach((id, i) => {
+      map[id] = LINE_COLORS[i % LINE_COLORS.length];
+    });
+    return map;
+  }, [trendProducts, displayTopProducts]);
+
   const accColor =
     stats.avgAccuracy == null ? 'var(--text-muted)' :
     stats.avgAccuracy >= 80   ? 'var(--success)'    :
     stats.avgAccuracy >= 60   ? 'var(--warning)'    : 'var(--error)';
-  
+
   const [templates, setTemplates] = useState([]);
 
   useEffect(() => {
@@ -360,13 +397,17 @@ export default function Dashboard() {
               <div>
                 <h3 style={{ margin: 0 }}>Sales Trend by Product</h3>
                 <p className="text-xs text-muted" style={{ marginTop: 3 }}>
-                  Last 30 days — top {Math.min(5, trendProducts.length)} products
+                  Last 30 days — top {trendProducts.length} product{trendProducts.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
             {trendData.length > 1 ? (
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={trendData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                <LineChart
+                  data={trendData}
+                  margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                  style={{ outline: 'none' }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false}/>
                   <XAxis
                     dataKey="label"
@@ -377,7 +418,7 @@ export default function Dashboard() {
                   <YAxis
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                     tickLine={false} axisLine={false}
-                    tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`}
+                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                     width={48}
                   />
                   <Tooltip content={<ChartTooltip />} />
@@ -385,16 +426,16 @@ export default function Dashboard() {
                     wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
                     formatter={(val) => val.length > 18 ? val.slice(0, 18) + '…' : val}
                   />
-                  {trendProducts.map((p, i) => (
+                  {trendProducts.map((p) => (
                     <Line
                       key={p.id}
                       type="monotone"
                       dataKey={p.name}
-                      stroke={LINE_COLORS[i % LINE_COLORS.length]}
+                      stroke={productColorMap[p.id] || 'var(--primary)'}
                       strokeWidth={2}
                       dot={false}
                       activeDot={{ r: 4 }}
-                      connectNulls={false}
+                      connectNulls={true}
                     />
                   ))}
                 </LineChart>
@@ -407,7 +448,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Accuracy trend */}
+          {/* Prediction Accuracy */}
           <div className="card dash-chart-card">
             <div className="dash-chart-header">
               <div>
@@ -424,7 +465,11 @@ export default function Dashboard() {
             </div>
             {stats.accuracyTrend.length > 1 ? (
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={stats.accuracyTrend} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                <LineChart
+                  data={stats.accuracyTrend}
+                  margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                  style={{ outline: 'none' }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false}/>
                   <XAxis
                     dataKey="label"
@@ -437,7 +482,7 @@ export default function Dashboard() {
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                     tickLine={false} axisLine={false}
                     tickFormatter={(v) => `${v}%`}
-                    width={40}
+                    width={44}
                   />
                   <Tooltip content={<AccTooltip />} />
                   <Line
@@ -447,6 +492,7 @@ export default function Dashboard() {
                     strokeWidth={2.5}
                     dot={{ r: 4, fill: '#fff', stroke: 'var(--primary)', strokeWidth: 2 }}
                     activeDot={{ r: 5 }}
+                    connectNulls={true}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -474,55 +520,65 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            {stats.topProducts.length > 0 ? (
+            {displayTopProducts.length > 0 ? (
               <>
                 <ResponsiveContainer width="100%" height={130}>
                   <BarChart
-                    data={stats.topProducts.map((p, i) => ({
+                    data={displayTopProducts.map((p) => ({
                       name: p.name.length > 12 ? p.name.slice(0, 12) + '…' : p.name,
                       sales: p.latestSales,
-                      fill: LINE_COLORS[i % LINE_COLORS.length],
+                      id: p.id,
                     }))}
                     margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
+                    style={{ outline: 'none' }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false}/>
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} tickLine={false} axisLine={false}/>
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
+                      tickLine={false} axisLine={false}
+                    />
                     <YAxis
                       tick={{ fontSize: 10, fill: 'var(--text-muted)' }}
                       tickLine={false} axisLine={false}
-                      tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`}
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                       width={44}
                     />
                     <Tooltip content={<ChartTooltip />} />
-                    
                     <Bar dataKey="sales" name="Last Sales" radius={[4, 4, 0, 0]}>
-                      {stats.topProducts.map((_, i) => (
-                        <Cell key={i} fill={LINE_COLORS[i % LINE_COLORS.length]} />
+                      {displayTopProducts.map((p) => (
+                        <Cell
+                          key={p.id}
+                          fill={productColorMap[p.id] || 'var(--primary)'}
+                        />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 14 }}>
-                  {stats.topProducts.map((p, i) => (
-                    <div key={p.id} className="dash-product-row">
-                      <div className="dash-product-rank" style={{
-                        background: `${LINE_COLORS[i % LINE_COLORS.length]}18`,
-                        color: LINE_COLORS[i % LINE_COLORS.length],
-                      }}>
-                        {i + 1}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {p.name}
+                  {displayTopProducts.map((p, i) => {
+                    const color = productColorMap[p.id] || LINE_COLORS[i % LINE_COLORS.length];
+                    return (
+                      <div key={p.id} className="dash-product-row">
+                        <div className="dash-product-rank" style={{
+                          background: `${color}18`,
+                          color,
+                        }}>
+                          {i + 1}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {p.name}
+                          </p>
+                          <p className="text-xs text-muted">{p.category || '—'}</p>
+                        </div>
+                        <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--success)', flexShrink: 0 }}>
+                          {rupees(p.latestSales)}
                         </p>
-                        <p className="text-xs text-muted">{p.category || '—'}</p>
                       </div>
-                      <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--success)', flexShrink: 0 }}>
-                        {rupees(p.latestSales)}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             ) : (
@@ -548,10 +604,11 @@ export default function Dashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {predictions.slice(0, 5).map((p) => {
                   const acc = p.accuracy;
+                  const delta = acc != null ? Math.abs(acc - 100) : null;
                   const accC =
-                    acc == null ? 'var(--text-muted)' :
-                    acc >= 80   ? 'var(--success)'    :
-                    acc >= 60   ? 'var(--warning)'    : 'var(--error)';
+                    delta == null     ? 'var(--text-muted)' :
+                    delta <= 10       ? 'var(--success)'    :
+                    delta <= 25       ? 'var(--warning)'    : 'var(--error)';
                   return (
                     <div key={p.id} className="dash-pred-row">
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -589,6 +646,7 @@ export default function Dashboard() {
 
         {/* ── Best Selling Products ─────────────────────────────── */}
         <BestSellingProducts templates={templates} />
+
       </div>
     </Layout>
   );

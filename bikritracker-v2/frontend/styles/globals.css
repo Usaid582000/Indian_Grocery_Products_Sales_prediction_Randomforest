@@ -2460,3 +2460,15 @@ p {
   border-radius: var(--radius);
   border: 1px solid var(--border);
 }
+
+/* ── Remove focus outline on Recharts SVG elements ───────────── */
+/* .recharts-wrapper,
+.recharts-surface,
+.recharts-layer,
+.recharts-wrapper svg {
+  outline: none !important;
+} */
+
+[class*="recharts-"] {
+  outline: none !important;
+}
