@@ -99,17 +99,6 @@ export default function SalesHistoryTable({ history = [], onChange }) {
         </div>
       </div>
 
-      {/* CSV paste hint */}
-      <div className="history-paste-hint">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-          <path d="M8 17H5a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"
-            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          <rect x="9" y="11" width="13" height="10" rx="2"
-            stroke="currentColor" strokeWidth="1.5"/>
-        </svg>
-        Tip: Paste CSV data directly into the table (format: date, sales — one row per line)
-      </div>
-
       {/* Empty state */}
       {history.length === 0 ? (
         <div className="history-empty">
@@ -117,7 +106,7 @@ export default function SalesHistoryTable({ history = [], onChange }) {
             <path d="M9 13h6m-3-3v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               stroke="var(--text-light)" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
-          <p>No history yet — click &quot;Add row&quot; or paste CSV data.</p>
+          <p>No history yet — click &quot;Add row&quot;.</p>
         </div>
       ) : (
         <div className="history-table-scroll" onPaste={handlePaste}>

@@ -1,29 +1,82 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Layout from '../components/layout/Layout';
 import ProductTable from '../components/inventory/ProductTable';
 import ProductModal from '../components/inventory/ProductModal';
-import ModalPortal  from '../components/ui/ModalPortal';
+import VoiceProductModal from '../components/inventory/VoiceProductModal';
+import ModalPortal from '../components/ui/ModalPortal';
 import { useProducts } from '../lib/hooks/useProducts';
 
 export default function Inventory() {
+  const router = useRouter();
   const {
     products, loading, error,
     addProduct, updateProduct, deleteProduct,
   } = useProducts();
 
+  // ── Core modal state ──────────────────────────────────────────
   const [showModal,    setShowModal]    = useState(false);
   const [editing,      setEditing]      = useState(null);
   const [saving,       setSaving]       = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting,     setDeleting]     = useState(false);
 
+  // ── New: QR direct + Voice state ─────────────────────────────
+  const [autoOpenQR,    setAutoOpenQR]    = useState(false);
+  const [prefillData,   setPrefillData]   = useState(null);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+  // ── Handle ?template= query from dashboard Best Selling ───────
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { template } = router.query;
+    if (template) {
+      try {
+        const data = JSON.parse(decodeURIComponent(template));
+        setEditing(null);
+        setPrefillData(data);
+        setAutoOpenQR(false);
+        setShowModal(true);
+        // Remove query param from URL without a reload
+        router.replace('/inventory', undefined, { shallow: true });
+      } catch (_) {}
+    }
+  }, [router.isReady, router.query]);
+
+  // ── Handlers ──────────────────────────────────────────────────
   function openAdd() {
     setEditing(null);
+    setPrefillData(null);
+    setAutoOpenQR(false);
     setShowModal(true);
   }
 
   function openEdit(product) {
     setEditing(product);
+    setPrefillData(null);
+    setAutoOpenQR(false);
+    setShowModal(true);
+  }
+
+  /** QR shortcut — open Add Product and immediately trigger scanner */
+  function openQRDirect() {
+    setEditing(null);
+    setPrefillData(null);
+    setAutoOpenQR(true);
+    setShowModal(true);
+  }
+
+  /** Voice shortcut — open voice modal first */
+  function openVoiceInput() {
+    setShowVoiceModal(true);
+  }
+
+  /** Called when voice modal finishes — open ProductModal with pre-filled fields */
+  function handleVoiceDone(parsedFields) {
+    setShowVoiceModal(false);
+    setEditing(null);
+    setPrefillData(parsedFields);
+    setAutoOpenQR(false);
     setShowModal(true);
   }
 
@@ -31,6 +84,8 @@ export default function Inventory() {
     if (saving) return;
     setShowModal(false);
     setEditing(null);
+    setAutoOpenQR(false);
+    setPrefillData(null);
   }
 
   async function handleSave(formData) {
@@ -66,7 +121,7 @@ export default function Inventory() {
     <Layout title="Inventory">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-        {/* Page header */}
+        {/* ── Page header ────────────────────────────────────── */}
         <div className="inv-page-header">
           <div>
             <h2 style={{ margin: 0 }}>Your Products</h2>
@@ -76,19 +131,56 @@ export default function Inventory() {
                 : `${products.length} product${products.length !== 1 ? 's' : ''}`}
             </p>
           </div>
-          <button className="btn btn-primary" onClick={openAdd}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12h14"
-                stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-            </svg>
-            Add product
-          </button>
+
+          {/* Desktop-only action buttons (hidden on mobile via CSS) */}
+          <div className="inv-header-actions">
+            <div className="inv-header-quick-btns">
+              <button
+                className="btn btn-secondary"
+                onClick={openVoiceInput}
+                title="Add a product using your voice"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="2" width="6" height="12" rx="3"
+                    stroke="currentColor" strokeWidth="1.8"/>
+                  <path d="M5 10v2a7 7 0 0014 0v-2M12 19v3M8 22h8"
+                    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+                Voice Input
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={openQRDirect}
+                title="Scan a barcode or QR code to add a product"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <rect x="3"  y="3"  width="7" height="7" rx="1"
+                    stroke="currentColor" strokeWidth="1.8"/>
+                  <rect x="14" y="3"  width="7" height="7" rx="1"
+                    stroke="currentColor" strokeWidth="1.8"/>
+                  <rect x="3"  y="14" width="7" height="7" rx="1"
+                    stroke="currentColor" strokeWidth="1.8"/>
+                  <path d="M14 14h2v2h-2zM18 14h3M14 18h2M18 18h3M14 21h3M20 18v3"
+                    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+                Scan Product
+              </button>
+            </div>
+
+            <button className="btn btn-primary" onClick={openAdd}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v14M5 12h14"
+                  stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+              </svg>
+              Add product
+            </button>
+          </div>
         </div>
 
         {/* Error */}
         {error && <div className="alert alert-error">{error}</div>}
 
-        {/* Products */}
+        {/* Products table */}
         <div className="card" style={{ padding: 20 }}>
           <ProductTable
             products={products}
@@ -98,19 +190,61 @@ export default function Inventory() {
           />
         </div>
 
+        {/* ── Mobile-only quick actions (below the card) ─────── */}
+        <div className="inv-quick-actions">
+          <button
+            className="btn btn-secondary inv-quick-btn"
+            onClick={openQRDirect}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3"  y="3"  width="7" height="7" rx="1"
+                stroke="currentColor" strokeWidth="1.8"/>
+              <rect x="14" y="3"  width="7" height="7" rx="1"
+                stroke="currentColor" strokeWidth="1.8"/>
+              <rect x="3"  y="14" width="7" height="7" rx="1"
+                stroke="currentColor" strokeWidth="1.8"/>
+              <path d="M14 14h2v2h-2zM18 14h3M14 18h2M18 18h3M14 21h3M20 18v3"
+                stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            </svg>
+            Scan Product
+          </button>
+          <button
+            className="btn btn-secondary inv-quick-btn"
+            onClick={openVoiceInput}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="9" y="2" width="6" height="12" rx="3"
+                stroke="currentColor" strokeWidth="1.8"/>
+              <path d="M5 10v2a7 7 0 0014 0v-2M12 19v3M8 22h8"
+                stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            </svg>
+            Voice Add
+          </button>
+        </div>
+
       </div>
 
-      {/* Product modal — has its own Portal internally */}
+      {/* ── Product modal ─────────────────────────────────────── */}
       {showModal && (
         <ProductModal
           product={editing}
           onSave={handleSave}
           onClose={closeModal}
           saving={saving}
+          autoOpenQR={autoOpenQR}
+          prefillData={prefillData}
         />
       )}
 
-      {/* Delete confirmation — wrapped in Portal */}
+      {/* ── Voice modal ───────────────────────────────────────── */}
+      {showVoiceModal && (
+        <VoiceProductModal
+          onProceed={handleVoiceDone}
+          onClose={() => setShowVoiceModal(false)}
+        />
+      )}
+
+      {/* ── Delete confirmation ───────────────────────────────── */}
       {deleteTarget && (
         <ModalPortal>
           <div

@@ -454,7 +454,7 @@ export default function Dashboard() {
               <div>
                 <h3 style={{ margin: 0 }}>Prediction Accuracy</h3>
                 <p className="text-xs text-muted" style={{ marginTop: 3 }}>
-                  Accuracy % for predictions with actuals set
+                  Accuracy % for predictions with actuals
                 </p>
               </div>
               {stats.avgAccuracy != null && (
@@ -479,6 +479,7 @@ export default function Dashboard() {
                   />
                   <YAxis
                     domain={[0, 100]}
+                    allowDecimals={false}
                     tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                     tickLine={false} axisLine={false}
                     tickFormatter={(v) => `${v}%`}

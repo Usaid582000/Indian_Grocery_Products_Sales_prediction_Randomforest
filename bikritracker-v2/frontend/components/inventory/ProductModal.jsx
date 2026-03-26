@@ -35,7 +35,14 @@ function emptyForm() {
   };
 }
 
-export default function ProductModal({ product, onSave, onClose, saving }) {
+export default function ProductModal({
+  product,
+  onSave,
+  onClose,
+  saving,
+  autoOpenQR  = false,   // ← new: auto-triggers QR scanner on mount
+  prefillData = null,    // ← new: pre-fills form fields (from voice / template)
+}) {
   const isEditing = Boolean(product);
 
   const [form,     setForm]     = useState(emptyForm());
@@ -43,8 +50,10 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
   const [showQR,   setShowQR]   = useState(false);
   const [qrBanner, setQrBanner] = useState('');
 
+  // ── Initialise form on open ─────────────────────────────────
   useEffect(() => {
     if (product) {
+      // Edit mode
       setForm({
         name:        product.name        || '',
         category:    product.category    || '',
@@ -59,11 +68,33 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
         })),
       });
     } else {
-      setForm(emptyForm());
+      // Add mode — optionally pre-fill from voice or template
+      const base = emptyForm();
+      if (prefillData) {
+        setForm({
+          ...base,
+          name:        prefillData.name        || '',
+          category:    prefillData.category    || '',
+          subcategory: prefillData.subcategory || '',
+          price:       prefillData.price       ? String(prefillData.price) : '',
+          city:        prefillData.city        || '',
+          region:      prefillData.region      || '',
+        });
+      } else {
+        setForm(base);
+      }
     }
     setErrors({});
     setQrBanner('');
-  }, [product]);
+  }, [product, prefillData]);
+
+  // ── Auto-open QR scanner when triggered from inventory page ─
+  useEffect(() => {
+    if (autoOpenQR) {
+      const t = setTimeout(() => setShowQR(true), 200);
+      return () => clearTimeout(t);
+    }
+  }, [autoOpenQR]);
 
   function setField(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -124,7 +155,7 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
         >
           <div className="product-modal card">
 
-            {/* ── Header ───────────────────────────────────── */}
+            {/* Header */}
             <div className="pm-header">
               <div>
                 <h3 className="pm-title">
@@ -172,7 +203,7 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
               </div>
             </div>
 
-            {/* ── QR banner ─────────────────────────────────── */}
+            {/* QR/voice banner */}
             {qrBanner === 'success' && (
               <div className="alert alert-success pm-banner">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
@@ -187,8 +218,19 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
                 Barcode not found in database — fill in the details manually
               </div>
             )}
+            {prefillData && !isEditing && qrBanner === '' && (
+              <div className="alert alert-success pm-banner">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                  <rect x="9" y="2" width="6" height="12" rx="3"
+                    stroke="currentColor" strokeWidth="2"/>
+                  <path d="M5 10v2a7 7 0 0014 0v-2M12 19v3M8 22h8"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                Fields filled from voice — review, complete, and save
+              </div>
+            )}
 
-            {/* ── Form body ─────────────────────────────────── */}
+            {/* Form body */}
             <form id="pm-form" onSubmit={handleSubmit} className="pm-body">
 
               {/* Product name */}
@@ -326,7 +368,7 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
 
             </form>
 
-            {/* ── Footer ────────────────────────────────────── */}
+            {/* Footer */}
             <div className="pm-footer">
               <button
                 type="button"
@@ -352,7 +394,6 @@ export default function ProductModal({ product, onSave, onClose, saving }) {
         </div>
       </ModalPortal>
 
-      {/* QR scanner — has its own Portal internally */}
       {showQR && (
         <QRScannerModal
           onScan={(result) => { handleQRScan(result); setShowQR(false); }}
