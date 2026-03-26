@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
+import Head from 'next/head';
 
 export default function Layout({ children, title }) {
   const { user, loading } = useAuth();
@@ -33,6 +34,9 @@ export default function Layout({ children, title }) {
 
   return (
     <div className="app-shell">
+      <Head>
+        <title>{title && title != "Dashboard" ? `${title} - BikriTracker` : 'BikriTracker'}</title>
+      </Head>
       <Sidebar />
       <div className="app-main">
         <TopBar title={title} />

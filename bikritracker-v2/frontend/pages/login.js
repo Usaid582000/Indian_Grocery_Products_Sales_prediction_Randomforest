@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
+import Head from 'next/head';
 
 const FIREBASE_ERRORS = {
   'auth/user-not-found':     'No account found with this email.',
@@ -49,16 +50,19 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-
+      <Head>
+        <title>Log In — BikriTracker</title>
+      </Head>
       {/* Left brand panel */}
       <div className="auth-brand">
         <div className="auth-brand-content">
 
           <div className="auth-brand-logo">
             <div className="auth-brand-logo-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M4 16l4-8 5 4 4-8" stroke="#f97316" strokeWidth="2"
-                  strokeLinecap="round" strokeLinejoin="round"/>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+                <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+                  strokeLinecap="round" strokeLinejoin="round" fill="none"/>
               </svg>
             </div>
             <span className="auth-brand-name">BikriTracker</span>
@@ -93,17 +97,17 @@ export default function Login() {
 
           {/* mobile-only logo */}
           <div className="auth-page-mobile-brand">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <rect rx="6" width="24" height="24" fill="#fff7ed"/>
-              <path d="M4 16l4-8 5 4 4-8" stroke="#f97316" strokeWidth="2"
-                strokeLinecap="round" strokeLinejoin="round"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32">
+              <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+              <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+                strokeLinecap="round" strokeLinejoin="round" fill="none"/>
             </svg>
             <span>BikriTracker</span>
           </div>
 
           <div className="auth-form-header">
             <h2>Welcome back</h2>
-            <p>Sign in to your store account</p>
+            <p>Log in to your store account</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -179,9 +183,9 @@ export default function Login() {
                 disabled={loading || !email || !password}
               >
                 {loading ? (
-                  <><span className="spinner spinner-sm spinner-white" /> Signing in...</>
+                  <><span className="spinner spinner-sm spinner-white" /> Loging in...</>
                 ) : (
-                  'Sign in'
+                  'Log in'
                 )}
               </button>
 

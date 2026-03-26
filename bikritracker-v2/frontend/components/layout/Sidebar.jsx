@@ -72,9 +72,10 @@ export default function Sidebar() {
       {/* ── Logo ──────────────────────────────────── */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M4 16l4-8 5 4 4-8" stroke="#f97316" strokeWidth="2.4"
-              strokeLinecap="round" strokeLinejoin="round"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+            <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+              strokeLinecap="round" strokeLinejoin="round" fill="none"/>
           </svg>
         </div>
         <span className="sidebar-logo-text">BikriTracker</span>
@@ -132,8 +133,8 @@ export default function Sidebar() {
         <button
           className="sidebar-logout-btn"
           onClick={handleLogout}
-          title="Sign out"
-          aria-label="Sign out"
+          title="Log out"
+          aria-label="Log out"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"

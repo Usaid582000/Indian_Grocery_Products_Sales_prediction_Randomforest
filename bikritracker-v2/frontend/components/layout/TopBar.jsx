@@ -51,9 +51,10 @@ export default function TopBar({ title }) {
       <div className="topbar-left">
         {/* Mobile-only logo mark */}
         <div className="topbar-mobile-logo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M4 16l4-8 5 4 4-8" stroke="var(--primary)" strokeWidth="2.4"
-              strokeLinecap="round" strokeLinejoin="round"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32">
+              <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+              <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+                strokeLinecap="round" strokeLinejoin="round" fill="none"/>
           </svg>
         </div>
         <h1 className="topbar-title">{pageTitle}</h1>
@@ -90,7 +91,7 @@ export default function TopBar({ title }) {
                   <path d="M16 17l5-5-5-5M21 12H9"
                     stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Sign out
+                Log out
               </button>
             </div>
           )}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
+import Head from 'next/head';
 
 const FIREBASE_ERRORS = {
   'auth/email-already-in-use': 'An account with this email already exists.',
@@ -64,6 +65,9 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
+      <Head>
+        <title>Create Account — BikriTracker</title>
+      </Head>
 
       {/* Left brand panel */}
       <div className="auth-brand">
@@ -71,9 +75,10 @@ export default function Signup() {
 
           <div className="auth-brand-logo">
             <div className="auth-brand-logo-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M4 16l4-8 5 4 4-8" stroke="#f97316" strokeWidth="2"
-                  strokeLinecap="round" strokeLinejoin="round"/>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+                <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+                  strokeLinecap="round" strokeLinejoin="round" fill="none"/>
               </svg>
             </div>
             <span className="auth-brand-name">BikriTracker</span>
@@ -108,10 +113,10 @@ export default function Signup() {
 
           {/* mobile-only logo */}
           <div className="auth-page-mobile-brand">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <rect rx="6" width="24" height="24" fill="#fff7ed"/>
-              <path d="M4 16l4-8 5 4 4-8" stroke="#f97316" strokeWidth="2"
-                strokeLinecap="round" strokeLinejoin="round"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 32 32">
+              <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+              <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+                strokeLinecap="round" strokeLinejoin="round" fill="none"/>
             </svg>
             <span>BikriTracker</span>
           </div>
@@ -260,7 +265,7 @@ export default function Signup() {
 
           <div className="auth-form-footer">
             Already have an account?{' '}
-            <Link href="/login">Sign in</Link>
+            <Link href="/login">Log in</Link>
           </div>
 
         </div>

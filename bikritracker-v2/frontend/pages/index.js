@@ -282,7 +282,7 @@ export default function Dashboard() {
         <div className="dash-greeting">
           <div>
             <h2 style={{ margin: 0 }}>
-              {greeting()}, {storeName} 👋
+              {greeting()}, {storeName}
             </h2>
             <p className="text-muted" style={{ marginTop: 4, fontSize: 14 }}>
               {new Date().toLocaleDateString('en-IN', {
@@ -381,7 +381,7 @@ export default function Dashboard() {
             loading={isLoading}
             icon={
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M3 17l4-8 5 4 4-8 5 9"
+                <path d="M4 16l4-8 5 4 4-8"
                   stroke="#10b981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             }
