@@ -129,6 +129,7 @@ export default function VoiceProductModal({ onProceed, onClose }) {
         if (e.results[i].isFinal) {
           latestFinal = e.results[i][0].transcript.trim();
         } else {
+          interim = e.results[i][0].transcript;
         }
       }
 
