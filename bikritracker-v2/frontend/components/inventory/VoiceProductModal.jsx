@@ -85,7 +85,7 @@ const FIELDS = [
 
 /* ── Main component ─────────────────────────────────────────── */
 export default function VoiceProductModal({ onProceed, onClose }) {
-  const [phase,      setPhase]      = useState('idle'); // idle | recording | stopped
+  const [phase,      setPhase]      = useState('idle'); // idle | recording | paused | stopped
   const [transcript, setTranscript] = useState('');
   const [parsed,     setParsed]     = useState({});
   const [error,      setError]      = useState('');
@@ -118,9 +118,10 @@ export default function VoiceProductModal({ onProceed, onClose }) {
     setPhase('recording');
 
     r.onresult = (e) => {
-      let final = transcriptRef.current;
+      let final = '';
       let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
+      // Rebuild from ALL results each time — avoids Chrome's e.resultIndex bug
+      for (let i = 0; i < e.results.length; i++) {
         if (e.results[i].isFinal) {
           final += e.results[i][0].transcript + ' ';
         } else {
@@ -128,7 +129,7 @@ export default function VoiceProductModal({ onProceed, onClose }) {
         }
       }
       transcriptRef.current = final;
-      setTranscript(final + interim);
+      setTranscript((final + interim).trim());
     };
 
     r.onerror = (e) => {
@@ -140,10 +141,10 @@ export default function VoiceProductModal({ onProceed, onClose }) {
 
     r.onend = () => {
       if (isRecordingRef.current) {
-        // Browser auto-stopped due to silence — restart to stay continuous
-        try { r.start(); } catch (_) { /* ignore */ }
+        // Browser stopped due to silence — show paused state (no restart = no sounds)
+        setPhase('paused');
       } else {
-        // User manually stopped — finalize
+        // User manually stopped
         const finalText = transcriptRef.current.trim();
         setTranscript(finalText);
         setParsed(parseVoiceToProduct(finalText));
@@ -168,6 +169,14 @@ export default function VoiceProductModal({ onProceed, onClose }) {
       try { recRef.current.stop(); } catch (_) { /* ignore */ }
       recRef.current = null;
     }
+  }
+
+  /* ── Resume recording ────────────────────────────────────── */
+  function resumeRecording() {
+    if (!recRef.current) return;
+    isRecordingRef.current = true;
+    setPhase('recording');
+    try { recRef.current.start(); } catch (_) {}
   }
 
   /* ── Reset everything ────────────────────────────────────── */
@@ -275,10 +284,20 @@ export default function VoiceProductModal({ onProceed, onClose }) {
                   Recording complete
                 </p>
               )}
+              {phase === 'paused' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <p style={{ color: 'var(--warning)', fontWeight: 700, fontSize: 14 }}>
+                    Paused — silence detected
+                  </p>
+                  <button className="btn btn-secondary btn-sm" onClick={resumeRecording}>
+                    ▶ Tap to Continue
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Transcript */}
-            {(phase === 'recording' || phase === 'stopped') && (
+            {(phase === 'recording' || phase === 'paused' || phase === 'stopped') && (
               <div className="voice-transcript-wrap">
                 <label className="label">
                   Transcript
@@ -363,6 +382,19 @@ export default function VoiceProductModal({ onProceed, onClose }) {
                     <rect x="5" y="5" width="14" height="14" rx="2"/>
                   </svg>
                   Stop Recording
+                </button>
+              </>
+            )}
+            {phase === 'paused' && (
+              <>
+                <button className="btn btn-secondary" onClick={handleClose}>
+                  Cancel
+                </button>
+                <button className="btn btn-secondary" onClick={reset}>
+                  Re-record
+                </button>
+                <button className="btn btn-danger" onClick={stopRecording}>
+                  Stop & Review
                 </button>
               </>
             )}

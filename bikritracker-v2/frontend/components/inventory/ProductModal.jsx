@@ -42,6 +42,7 @@ export default function ProductModal({
   saving,
   autoOpenQR  = false,   // ← new: auto-triggers QR scanner on mount
   prefillData = null,    // ← new: pre-fills form fields (from voice / template)
+  prefillSource = null,
 }) {
   const isEditing = Boolean(product);
 
@@ -218,7 +219,7 @@ export default function ProductModal({
                 Barcode not found in database — fill in the details manually
               </div>
             )}
-            {prefillData && !isEditing && qrBanner === '' && (
+            {prefillData && !isEditing && qrBanner === '' && prefillSource === 'voice' && (
               <div className="alert alert-success pm-banner">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
                   <rect x="9" y="2" width="6" height="12" rx="3"

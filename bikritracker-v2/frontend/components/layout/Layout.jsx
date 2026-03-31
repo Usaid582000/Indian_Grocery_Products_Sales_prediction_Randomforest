@@ -19,9 +19,10 @@ export default function Layout({ children, title }) {
       <div className="page-loading">
         <div className="page-loading-inner">
           <div className="page-loading-logo">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <path d="M4 16l4-8 5 4 4-8" stroke="var(--primary)" strokeWidth="2.2"
-                strokeLinecap="round" strokeLinejoin="round"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" width="32" height="32">
+              <rect width="32" height="32" rx="8" fill="#fff7ed"/>
+              <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+                strokeLinecap="round" strokeLinejoin="round" fill="none"/>
             </svg>
           </div>
           <span className="spinner" style={{ width: 28, height: 28, borderWidth: 3 }} />

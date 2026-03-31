@@ -51,7 +51,7 @@ export default function Login() {
   return (
     <div className="auth-page">
       <Head>
-        <title>Log In — BikriTracker</title>
+        <title>Log In - BikriTracker</title>
       </Head>
       {/* Left brand panel */}
       <div className="auth-brand">

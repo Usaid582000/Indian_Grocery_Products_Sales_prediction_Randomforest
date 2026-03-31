@@ -21,6 +21,9 @@ export default function Inventory() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting,     setDeleting]     = useState(false);
 
+
+  const [prefillSource, setPrefillSource] = useState(null); // 'voice' | 'template' | null
+
   // ── New: QR direct + Voice state ─────────────────────────────
   const [autoOpenQR,    setAutoOpenQR]    = useState(false);
   const [prefillData,   setPrefillData]   = useState(null);
@@ -35,6 +38,7 @@ export default function Inventory() {
         const data = JSON.parse(decodeURIComponent(template));
         setEditing(null);
         setPrefillData(data);
+        setPrefillSource('template');
         setAutoOpenQR(false);
         setShowModal(true);
         // Remove query param from URL without a reload
@@ -76,6 +80,7 @@ export default function Inventory() {
     setShowVoiceModal(false);
     setEditing(null);
     setPrefillData(parsedFields);
+    setPrefillSource('voice');
     setAutoOpenQR(false);
     setShowModal(true);
   }
@@ -86,6 +91,7 @@ export default function Inventory() {
     setEditing(null);
     setAutoOpenQR(false);
     setPrefillData(null);
+    setPrefillSource(null);
   }
 
   async function handleSave(formData) {
@@ -218,7 +224,7 @@ export default function Inventory() {
               <path d="M5 10v2a7 7 0 0014 0v-2M12 19v3M8 22h8"
                 stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
             </svg>
-            Voice Add
+            Voice Input
           </button>
         </div>
 
@@ -233,6 +239,7 @@ export default function Inventory() {
           saving={saving}
           autoOpenQR={autoOpenQR}
           prefillData={prefillData}
+          prefillSource={prefillSource}
         />
       )}
 

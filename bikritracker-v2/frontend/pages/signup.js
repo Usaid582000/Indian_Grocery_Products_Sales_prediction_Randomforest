@@ -66,7 +66,7 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <Head>
-        <title>Create Account — BikriTracker</title>
+        <title>Create Account - BikriTracker</title>
       </Head>
 
       {/* Left brand panel */}
