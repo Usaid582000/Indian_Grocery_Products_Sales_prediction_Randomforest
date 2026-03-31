@@ -110,26 +110,59 @@ export default function VoiceProductModal({ onProceed, onClose }) {
     r.interimResults  = true;
     r.maxAlternatives = 1;
 
-    transcriptRef.current  = '';
-    isRecordingRef.current = true;
+    // Preserve any text from a previous session (after resume)
+    const baseText = transcriptRef.current.trim();
 
-    setTranscript('');
+    // Per-session state — lives in closure, resets on each startRecording call
+    let sessionText     = '';  // finalized text for this session
+    let lastFinalSeen   = '';  // last final string we processed
+
+    isRecordingRef.current = true;
     setError('');
     setPhase('recording');
 
     r.onresult = (e) => {
-      let final = '';
-      let interim = '';
-      // Rebuild from ALL results each time — avoids Chrome's e.resultIndex bug
+      // ── Find the latest final and current interim ─────────────
+      let latestFinal = '';
+      let interim     = '';
       for (let i = 0; i < e.results.length; i++) {
         if (e.results[i].isFinal) {
-          final += e.results[i][0].transcript + ' ';
+          latestFinal = e.results[i][0].transcript.trim();
         } else {
-          interim += e.results[i][0].transcript;
         }
       }
-      transcriptRef.current = final;
-      setTranscript((final + interim).trim());
+
+      // ── Handle final result ────────────────────────────────────
+      if (latestFinal && latestFinal !== lastFinalSeen) {
+        /*
+         * Android Chrome sends CUMULATIVE finals:
+         *   event 1 final → "name"
+         *   event 2 final → "name is"        ← contains previous
+         *   event 3 final → "name is Parle G" ← contains previous
+         *
+         * Desktop Chrome sends INCREMENTAL finals (one sentence at a time).
+         *
+         * Detection: if the new final starts with (or contains) the last final,
+         * it's cumulative — use it directly as the session text.
+         * Otherwise it's a new sentence — append it.
+         */
+        const isCumulative =
+          sessionText === '' ||
+          latestFinal.startsWith(lastFinalSeen) ||
+          latestFinal.includes(lastFinalSeen);
+
+        if (isCumulative) {
+          sessionText = latestFinal;          // replace (it already includes everything)
+        } else {
+          sessionText = (sessionText + ' ' + latestFinal).trim(); // append new sentence
+        }
+        lastFinalSeen = latestFinal;
+      }
+
+      // ── Update transcript ─────────────────────────────────────
+      const combined = [baseText, sessionText].filter(Boolean).join(' ');
+      transcriptRef.current = combined ? combined + ' ' : '';
+      setTranscript((combined + (interim ? ' ' + interim : '')).trim());
     };
 
     r.onerror = (e) => {
@@ -167,21 +200,38 @@ export default function VoiceProductModal({ onProceed, onClose }) {
     isRecordingRef.current = false;
     if (recRef.current) {
       try { recRef.current.stop(); } catch (_) { /* ignore */ }
-      recRef.current = null;
+      // Don't null here — onend will fire and finalize via the else branch
     }
   }
 
-  /* ── Resume recording ────────────────────────────────────── */
-  function resumeRecording() {
-    if (!recRef.current) return;
-    isRecordingRef.current = true;
-    setPhase('recording');
-    try { recRef.current.start(); } catch (_) {}
+  // ── Stop & Review (from paused state) ───────────────────────
+  // The recognizer already ended when paused, so onend won't fire again.
+  // We finalize directly here.
+  function stopAndReview() {
+    isRecordingRef.current = false;
+    if (recRef.current) {
+      try { recRef.current.stop(); } catch (_) { /* ignore */ }
+      recRef.current = null;
+    }
+    const finalText = transcriptRef.current.trim();
+    setTranscript(finalText);
+    setParsed(parseVoiceToProduct(finalText));
+    setPhase('stopped');
   }
 
-  /* ── Reset everything ────────────────────────────────────── */
+  // ── Resume from paused ───────────────────────────────────────
+  function resumeRecording() {
+    // Start a fresh recognition session (preserving transcriptRef text)
+    startRecording();
+  }
+
+  // ── Reset ────────────────────────────────────────────────────
   function reset() {
-    stopRecording();
+    isRecordingRef.current = false;
+    if (recRef.current) {
+      try { recRef.current.stop(); } catch (_) { /* ignore */ }
+      recRef.current = null;
+    }
     transcriptRef.current = '';
     setPhase('idle');
     setTranscript('');
@@ -197,7 +247,11 @@ export default function VoiceProductModal({ onProceed, onClose }) {
 
   /* ── Dismiss ─────────────────────────────────────────────── */
   function handleClose() {
-    stopRecording();
+    isRecordingRef.current = false;
+    if (recRef.current) {
+      try { recRef.current.stop(); } catch (_) { /* ignore */ }
+      recRef.current = null;
+    }
     onClose();
   }
 
@@ -211,7 +265,7 @@ export default function VoiceProductModal({ onProceed, onClose }) {
       >
         <div className="voice-modal card">
 
-          {/* ── Header ─────────────────────────────────────── */}
+          {/* Header */}
           <div className="voice-modal-header">
             <div>
               <h3 style={{ margin: 0 }}>Voice Add Product</h3>
@@ -227,7 +281,7 @@ export default function VoiceProductModal({ onProceed, onClose }) {
             </button>
           </div>
 
-          {/* ── Tip bar ────────────────────────────────────── */}
+          {/* Tip bar */}
           <div className="voice-modal-tip">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
               <circle cx="12" cy="12" r="10" stroke="var(--primary)" strokeWidth="1.8"/>
@@ -239,12 +293,16 @@ export default function VoiceProductModal({ onProceed, onClose }) {
             </span>
           </div>
 
-          {/* ── Scrollable body ────────────────────────────── */}
+          {/* Body */}
           <div className="voice-modal-body">
 
-            {/* Mic circle */}
+            {/* Mic area */}
             <div className="voice-mic-area">
-              <div className={`voice-mic-icon ${phase === 'recording' ? 'recording' : phase === 'stopped' ? 'done' : ''}`}>
+              <div className={`voice-mic-icon ${
+                phase === 'recording' ? 'recording' :
+                phase === 'paused'    ? 'paused'    :
+                phase === 'stopped'   ? 'done'      : ''
+              }`}>
                 {phase === 'stopped' ? (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                     <path d="M20 6L9 17l-5-5"
@@ -311,7 +369,7 @@ export default function VoiceProductModal({ onProceed, onClose }) {
                   className="voice-transcript"
                   value={transcript}
                   onChange={(e) => phase === 'stopped' && handleTranscriptEdit(e.target.value)}
-                  readOnly={phase === 'recording'}
+                  readOnly={phase !== 'stopped'}
                   placeholder="Your speech will appear here…"
                   rows={3}
                 />
@@ -350,20 +408,18 @@ export default function VoiceProductModal({ onProceed, onClose }) {
 
             {/* Error */}
             {error && (
-              <div className="alert alert-error" style={{ marginTop: 8 }}>
+              <div className="alert alert-error" style={{ marginTop: 8, margin: '8px 20px 0' }}>
                 {error}
               </div>
             )}
 
           </div>
 
-          {/* ── Footer ─────────────────────────────────────── */}
+          {/* Footer */}
           <div className="voice-modal-footer">
             {phase === 'idle' && (
               <>
-                <button className="btn btn-secondary" onClick={handleClose}>
-                  Cancel
-                </button>
+                <button className="btn btn-secondary" onClick={handleClose}>Cancel</button>
                 <button className="btn btn-primary" onClick={startRecording}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="9" y="2" width="6" height="12" rx="3"/>
@@ -374,9 +430,7 @@ export default function VoiceProductModal({ onProceed, onClose }) {
             )}
             {phase === 'recording' && (
               <>
-                <button className="btn btn-secondary" onClick={handleClose}>
-                  Cancel
-                </button>
+                <button className="btn btn-secondary" onClick={handleClose}>Cancel</button>
                 <button className="btn btn-danger" onClick={stopRecording}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="5" y="5" width="14" height="14" rx="2"/>
@@ -387,22 +441,16 @@ export default function VoiceProductModal({ onProceed, onClose }) {
             )}
             {phase === 'paused' && (
               <>
-                <button className="btn btn-secondary" onClick={handleClose}>
-                  Cancel
-                </button>
-                <button className="btn btn-secondary" onClick={reset}>
-                  Re-record
-                </button>
-                <button className="btn btn-danger" onClick={stopRecording}>
+                <button className="btn btn-secondary" onClick={handleClose}>Cancel</button>
+                <button className="btn btn-secondary" onClick={reset}>Re-record</button>
+                <button className="btn btn-danger" onClick={stopAndReview}>
                   Stop & Review
                 </button>
               </>
             )}
             {phase === 'stopped' && (
               <>
-                <button className="btn btn-secondary" onClick={reset}>
-                  Re-record
-                </button>
+                <button className="btn btn-secondary" onClick={reset}>Re-record</button>
                 <button
                   className="btn btn-primary"
                   onClick={() => onProceed(parsed)}

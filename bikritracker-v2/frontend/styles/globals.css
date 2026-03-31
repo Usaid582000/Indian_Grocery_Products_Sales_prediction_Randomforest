@@ -2604,6 +2604,12 @@ p {
   color: var(--success);
 }
 
+.voice-mic-icon.paused {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
 @keyframes voice-mic-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
   50%       { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
