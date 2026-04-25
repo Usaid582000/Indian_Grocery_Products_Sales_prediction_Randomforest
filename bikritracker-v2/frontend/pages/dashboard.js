@@ -663,7 +663,7 @@ export default function Dashboard() {
                           />
                           <input
                             type="number"
-                            placeholder="Units Sold"
+                            placeholder="Sales (₹)"
                             className="entry-sales"
                             value={entrySales}
                             onChange={(e) => setEntrySales(e.target.value)}
