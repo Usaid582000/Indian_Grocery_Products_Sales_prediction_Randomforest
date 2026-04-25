@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const NAV_ITEMS = [
   {
-    href: '/',
+    href: '/dashboard',
     label: 'Dashboard',
     icon: (
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
@@ -73,8 +73,8 @@ export default function Sidebar() {
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-            <rect width="32" height="32" rx="8" fill="#fff7ed"/>
-            <path d="M5 22l5-10 6 5 5-10 6 11" stroke="#f97316" strokeWidth="2.8"
+            <rect width="32" height="32" rx="8" fill="var(--primary-light)"/>
+            <path d="M5 22l5-10 6 5 5-10 6 11" stroke="var(--primary)" strokeWidth="2.8"
               strokeLinecap="round" strokeLinejoin="round" fill="none"/>
           </svg>
         </div>
