@@ -5,6 +5,8 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  updateEmail,
+  updatePassword,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
@@ -46,8 +48,35 @@ export function AuthProvider({ children }) {
     await signOut(auth);
   }
 
+  async function updateUserEmail(newEmail) {
+    if (user) await updateEmail(user, newEmail);
+  }
+
+  async function updateUserPassword(newPassword) {
+    if (user) await updatePassword(user, newPassword);
+  }
+
+  async function updateUserProfile(data) {
+    if (!user) return;
+    // Update Firebase Auth Display Name if provided
+    if (data.displayName) {
+      await updateProfile(user, { displayName: data.displayName });
+    }
+    // Update Firestore document
+    await setDoc(doc(db, 'users', user.uid), data, { merge: true });
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      signup, 
+      login, 
+      logout,
+      updateUserEmail,
+      updateUserPassword,
+      updateUserProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -17,6 +17,19 @@ function rupees(n) {
   return `₹${Math.round(Number(n)).toLocaleString("en-IN")}`;
 }
 
+function accuracyColor(acc) {
+  if (acc == null) return "#94a3b8";
+  const delta = Math.abs(acc - 100);
+  if (delta <= 10) return "#22c55e"; // Green
+  if (delta <= 25) return "#f59e0b"; // Orange
+  return "#ef4444"; // Red
+}
+
+function formatAccuracy(acc) {
+  if (acc == null) return "—";
+  return `${Math.round(acc)}%`;
+}
+
 const CategoryIcon = ({ category }) => {
   const cat = (category || '').toLowerCase();
   if (cat.includes('grocery') || cat.includes('food')) return <span>🛒</span>;
@@ -37,6 +50,99 @@ const DATE_OPTIONS = [
   { label: "After 3 months", days: 90 },
   { label: "Custom date", days: null },
 ];
+
+/* ── Set actual modal ───────────────────────────────────────── */
+function SetActualModal({ prediction, onSave, onClose }) {
+  const [actual, setActual] = useState(prediction.actual ?? "");
+  const [saving, setSaving] = useState(false);
+
+  const preview = actual !== "" && !isNaN(Number(actual)) && prediction.predicted
+    ? Math.round((Number(actual) / prediction.predicted) * 100)
+    : null;
+
+  async function handleSave() {
+    const num = Number(actual);
+    if (!actual || isNaN(num) || num < 0) return alert("Enter a valid amount.");
+    setSaving(true);
+    try {
+      await onSave(prediction.id, num, prediction.predicted);
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="v-modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="v-modal m-card">
+        <div className="v-modal-header">
+          <h3>Validate Prediction</h3>
+          <button className="v-close-btn" onClick={onClose}>&times;</button>
+        </div>
+        <div className="v-modal-body">
+          <div className="v-summary">
+            <span className="v-summary-label">{prediction.productName}</span>
+            <span className="v-summary-date">{prediction.predictionDate}</span>
+          </div>
+
+          <div className="v-form-group">
+            <label className="v-label">Actual Sales (₹)</label>
+            <input
+              type="number"
+              className="v-input"
+              placeholder="Enter real sales amount"
+              value={actual}
+              onChange={(e) => setActual(e.target.value)}
+              autoFocus
+            />
+          </div>
+
+          {preview !== null && (
+            <div className="v-accuracy-preview">
+              <div className="v-acc-top">
+                <span className="v-acc-label">Estimated Accuracy</span>
+                <span className="v-acc-val" style={{ color: accuracyColor(preview) }}>{preview}%</span>
+              </div>
+              <div className="v-acc-bar">
+                <div className="v-acc-fill" style={{ width: `${Math.min(preview, 100)}%`, backgroundColor: accuracyColor(preview) }} />
+              </div>
+              <p className="v-acc-hint">
+                {preview >= 90 && preview <= 110 ? "Excellent prediction!" : 
+                 preview >= 75 && preview <= 125 ? "Good prediction." : "Low accuracy. Data might be noisy."}
+              </p>
+            </div>
+          )}
+        </div>
+        <div className="v-modal-footer">
+          <button className="v-secondary-btn" onClick={onClose}>Cancel</button>
+          <button className="v-primary-btn" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Update Results"}
+          </button>
+        </div>
+      </div>
+      <style jsx>{`
+        .v-modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10007; padding: 20px; }
+        .v-modal { background: white; width: 100%; max-width: 400px; padding: 24px; border-radius: 32px; animation: modalSlideUp 0.3s ease-out; }
+        .v-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .v-modal-header h3 { margin: 0; font-size: 20px; font-weight: 800; color: #1e1b4b; }
+        .v-close-btn { background: none; border: none; font-size: 28px; color: #94a3b8; cursor: pointer; }
+        .v-summary { display: flex; flex-direction: column; background: #f8fafc; padding: 12px 16px; border-radius: 16px; margin-bottom: 24px; }
+        .v-summary-label { font-weight: 700; color: #1e1b4b; font-size: 15px; }
+        .v-summary-date { font-size: 12px; color: #64748b; font-weight: 600; }
+        .v-accuracy-preview { margin-top: 24px; background: #f8fafc; padding: 16px; border-radius: 20px; border: 1.5px dashed #e2e8f0; }
+        .v-acc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .v-acc-label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .v-acc-val { font-size: 20px; font-weight: 800; }
+        .v-acc-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .v-acc-fill { height: 100%; transition: width 0.4s ease; }
+        .v-acc-hint { font-size: 11px; color: #94a3b8; font-weight: 600; margin: 0; }
+        .v-modal-footer { display: flex; gap: 12px; margin-top: 30px; }
+        .v-secondary-btn { flex: 1; height: 56px; border-radius: 18px; border: 1.5px solid #f1f5f9; background: #f8fafc; font-family: 'Outfit'; font-weight: 700; color: #64748b; cursor: pointer; }
+        @keyframes modalSlideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      `}</style>
+    </div>
+  );
+}
 
 /* ── Result card ────────────────────────────────────────────── */
 function ResultCard({ result, productName, price }) {
@@ -161,6 +267,10 @@ export default function Predict() {
     }
   }
 
+  async function handleSetActual(predId, actual, predicted) {
+    await updatePrediction(predId, { actual, predicted });
+  }
+
   const currentDate = new Date().toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric'
   });
@@ -173,8 +283,8 @@ export default function Predict() {
           <div className="top-section">
             <div className="header-row">
               <div className="profile">
-                <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="avatar" />
-                <span className="profile-name">Predict Demand</span>
+                <img src={user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} alt="avatar" />
+                <span className="profile-name">{user?.displayName || 'Alex User'}</span>
               </div>
               <div className="date-pill">{currentDate}</div>
             </div>
@@ -271,18 +381,28 @@ export default function Predict() {
                 {!predsLoading && predictions.length === 0 && (
                   <div className="empty-msg">No recent predictions found.</div>
                 )}
-                {predictions.slice(0, 5).map(p => (
-                  <div key={p.id} className="m-card history-item">
+                {predictions.slice(0, 10).map(p => (
+                  <div key={p.id} className="m-card history-item" onClick={() => setActualModal(p)}>
                     <div className="h-left">
-                      <div className="h-icon">📈</div>
+                      <div className="h-icon" style={{ backgroundColor: p.actual ? '#f0fdf4' : '#f1f5f9' }}>
+                        {p.actual ? '✅' : '📈'}
+                      </div>
                       <div className="h-info">
                         <span className="h-name">{p.productName}</span>
                         <span className="h-date">{p.predictionDate}</span>
                       </div>
                     </div>
                     <div className="h-right">
-                      <span className="h-val">₹{Math.round(p.predicted).toLocaleString()}</span>
-                      <span className="h-label">Predicted</span>
+                      {p.actual ? (
+                        <div className="h-acc-badge" style={{ backgroundColor: accuracyColor(p.accuracy) }}>
+                          {formatAccuracy(p.accuracy)} Acc.
+                        </div>
+                      ) : (
+                        <div className="h-val-group">
+                          <span className="h-val">₹{Math.round(p.predicted).toLocaleString()}</span>
+                          <span className="h-label">Predicted</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -292,6 +412,14 @@ export default function Predict() {
           </div>
         </div>
       </div>
+
+      {actualModal && (
+        <SetActualModal
+          prediction={actualModal}
+          onSave={handleSetActual}
+          onClose={() => setActualModal(null)}
+        />
+      )}
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
@@ -409,19 +537,22 @@ export default function Predict() {
         .history-section { margin-top: 10px; }
         .history-list { display: flex; flex-direction: column; gap: 12px; }
         .history-item {
-          padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+          padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s;
         }
+        .history-item:active { transform: scale(0.98); }
         .h-left { display: flex; align-items: center; gap: 16px; }
         .h-icon {
-          width: 44px; height: 44px; background: #f1f5f9; border-radius: 14px;
+          width: 44px; height: 44px; border-radius: 14px;
           display: flex; align-items: center; justify-content: center; font-size: 18px;
         }
         .h-info { display: flex; flex-direction: column; }
         .h-name { font-size: 15px; font-weight: 700; color: #1e1b4b; }
         .h-date { font-size: 12px; color: #94a3b8; font-weight: 600; }
         .h-right { text-align: right; }
-        .h-val { display: block; font-size: 16px; font-weight: 800; color: #1e1b4b; }
+        .h-val-group { display: flex; flex-direction: column; }
+        .h-val { font-size: 16px; font-weight: 800; color: #1e1b4b; }
         .h-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        .h-acc-badge { padding: 6px 12px; border-radius: 10px; color: white; font-size: 11px; font-weight: 800; }
 
         .loading-msg, .empty-msg { text-align: center; padding: 30px; color: #94a3b8; font-weight: 600; }
       `}</style>

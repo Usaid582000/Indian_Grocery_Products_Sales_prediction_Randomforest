@@ -1,0 +1,16 @@
+{
+  "name": "BikriTracker",
+  "short_name": "BikriTracker",
+  "description": "AI-powered sales prediction and inventory management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f1d3c",
+  "theme_color": "#1f1d3c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
