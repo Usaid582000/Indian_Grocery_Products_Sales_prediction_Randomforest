@@ -36,7 +36,7 @@ export default function AccountPage() {
       try {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
-        
+
         const data = docSnap.exists() ? docSnap.data() : {};
         setFormData({
           displayName: user.displayName || '',
@@ -64,7 +64,7 @@ export default function AccountPage() {
       if (formData.email !== user.email) {
         await updateUserEmail(formData.email);
       }
-      
+
       // Update Firestore + Auth Display Name
       await updateUserProfile({
         displayName: formData.displayName,
@@ -73,7 +73,7 @@ export default function AccountPage() {
         gender: formData.gender,
         email: formData.email
       });
-      
+
       setSuccess('Profile updated successfully!');
     } catch (err) {
       setError(err.message || 'Failed to update profile.');
@@ -116,7 +116,7 @@ export default function AccountPage() {
       <div id="account-page-override">
         <div className="account-hero">
           <button className="back-btn" onClick={() => router.back()}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
           </button>
           <h1>{action === 'password' ? 'Security' : 'Personal Info'}</h1>
         </div>
@@ -129,39 +129,39 @@ export default function AccountPage() {
             <form className="account-form m-card" onSubmit={handleUpdateProfile}>
               <div className="form-group">
                 <label>Full Name</label>
-                <input 
-                  type="text" 
-                  value={formData.displayName} 
-                  onChange={e => setFormData({...formData, displayName: e.target.value})} 
+                <input
+                  type="text"
+                  value={formData.displayName}
+                  onChange={e => setFormData({ ...formData, displayName: e.target.value })}
                   placeholder="e.g. Alex Johnson"
                 />
               </div>
 
               <div className="form-group">
                 <label>Username</label>
-                <input 
-                  type="text" 
-                  value={formData.username} 
-                  onChange={e => setFormData({...formData, username: e.target.value})} 
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={e => setFormData({ ...formData, username: e.target.value })}
                   placeholder="e.g. alex_user77"
                 />
               </div>
 
               <div className="form-group">
                 <label>Email Address</label>
-                <input 
-                  type="email" 
-                  value={formData.email} 
-                  onChange={e => setFormData({...formData, email: e.target.value})} 
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
 
               <div className="form-row">
                 <div className="form-group flex-1">
                   <label>Gender</label>
-                  <select 
-                    value={formData.gender} 
-                    onChange={e => setFormData({...formData, gender: e.target.value})}
+                  <select
+                    value={formData.gender}
+                    onChange={e => setFormData({ ...formData, gender: e.target.value })}
                   >
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -170,10 +170,10 @@ export default function AccountPage() {
                 </div>
                 <div className="form-group flex-1">
                   <label>Phone Number</label>
-                  <input 
-                    type="tel" 
-                    value={formData.phone} 
-                    onChange={e => setFormData({...formData, phone: e.target.value})} 
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+91 98765 43210"
                   />
                 </div>
@@ -188,23 +188,33 @@ export default function AccountPage() {
               <div className="form-group">
                 <label>New Password</label>
                 <div className="input-with-icon">
-                  <input 
-                    type={showPass ? "text" : "password"} 
-                    value={passwords.newPass} 
-                    onChange={e => setPasswords({...passwords, newPass: e.target.value})} 
+                  <input
+                    type={showPass ? "text" : "password"}
+                    value={passwords.newPass}
+                    onChange={e => setPasswords({ ...passwords, newPass: e.target.value })}
                     placeholder="At least 6 characters"
                   />
                   <button type="button" className="icon-btn" onClick={() => setShowPass(!showPass)}>
-                    {showPass ? '👁️' : '🙈'}
+                    {showPass ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    )}
                   </button>
                 </div>
               </div>
               <div className="form-group">
                 <label>Confirm New Password</label>
-                <input 
-                  type="password" 
-                  value={passwords.confirmPass} 
-                  onChange={e => setPasswords({...passwords, confirmPass: e.target.value})} 
+                <input
+                  type="password"
+                  value={passwords.confirmPass}
+                  onChange={e => setPasswords({ ...passwords, confirmPass: e.target.value })}
                 />
               </div>
               <button className="save-btn" type="submit" disabled={saving}>
@@ -234,7 +244,7 @@ export default function AccountPage() {
           background: rgba(255,255,255,0.1); border: none; width: 44px; height: 44px;
           border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-        .account-hero h1 { font-size: 28px; font-weight: 800; margin: 0; }
+        .account-hero h1 { font-size: 28px; font-weight: 800; margin: 0; color: white !important; }
         
         .account-container { padding: 0 20px; margin-top: -20px; max-width: 600px; margin-left: auto; margin-right: auto; }
         

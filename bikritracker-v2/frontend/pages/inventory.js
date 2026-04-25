@@ -165,15 +165,15 @@ export default function Inventory() {
 
   return (
     <Layout title="Inventory">
-      <div id="inventory-override">
+      <div id="inventory-override" className="inventory-page">
         <div className="new-inv">
 
           {/* Top Section */}
           <div className="top-section">
             <div className="header-row">
               <div className="profile">
-                <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="avatar" />
-                <span className="profile-name">Sharma General Store</span>
+                <img src={user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} alt="avatar" />
+                <span className="profile-name">{user?.displayName || 'Sharma General Store'}</span>
               </div>
               <div className="date-pill">{currentDate}</div>
             </div>

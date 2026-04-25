@@ -470,6 +470,7 @@ export default function ProductModal({
           .pm-body { grid-template-columns: 1fr; padding: 20px; gap: 16px; }
           .pm-title { font-size: 20px; }
           .btn { flex: 1; justify-content: center; }
+          .pm-footer { padding-bottom: 80px; } /* Added space to avoid BottomNav overlap */
         }
       `}</style>
     </>

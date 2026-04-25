@@ -107,8 +107,8 @@ function SetActualModal({ prediction, onSave, onClose }) {
                 <div className="v-acc-fill" style={{ width: `${Math.min(preview, 100)}%`, backgroundColor: accuracyColor(preview) }} />
               </div>
               <p className="v-acc-hint">
-                {preview >= 90 && preview <= 110 ? "Excellent prediction!" : 
-                 preview >= 75 && preview <= 125 ? "Good prediction." : "Low accuracy. Data might be noisy."}
+                {preview >= 90 && preview <= 110 ? "Excellent prediction!" :
+                  preview >= 75 && preview <= 125 ? "Good prediction." : "Low accuracy. Data might be noisy."}
               </p>
             </div>
           )}
@@ -138,6 +138,9 @@ function SetActualModal({ prediction, onSave, onClose }) {
         .v-acc-hint { font-size: 11px; color: #94a3b8; font-weight: 600; margin: 0; }
         .v-modal-footer { display: flex; gap: 12px; margin-top: 30px; }
         .v-secondary-btn { flex: 1; height: 56px; border-radius: 18px; border: 1.5px solid #f1f5f9; background: #f8fafc; font-family: 'Outfit'; font-weight: 700; color: #64748b; cursor: pointer; }
+        @media (max-width: 500px) {
+          .v-modal-footer { padding-bottom: 80px; }
+        }
         @keyframes modalSlideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
     </div>
@@ -190,7 +193,7 @@ function ResultCard({ result, productName, price }) {
 
       <div className="res-footer-info">
         <div className="info-icon">💡</div>
-        <p>This prediction is based on {result.rows_used} historical sales entries for this product.</p>
+        <p style={{ color: 'white' }}>This prediction is based on {result.rows_used} historical sales entries for this product.</p>
       </div>
     </div>
   );
@@ -209,7 +212,7 @@ export default function Predict() {
   } = usePredictions();
 
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [dateOpt, setDateOpt] = useState("30"); 
+  const [dateOpt, setDateOpt] = useState("30");
   const [customDate, setCustomDate] = useState("");
   const [isCustom, setIsCustom] = useState(false);
 
@@ -271,6 +274,13 @@ export default function Predict() {
     await updatePrediction(predId, { actual, predicted });
   }
 
+  async function handleDeleteHistory(e, id) {
+    e.stopPropagation();
+    if (confirm("Delete this prediction from history?")) {
+      await deletePrediction(id);
+    }
+  }
+
   const currentDate = new Date().toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric'
   });
@@ -279,7 +289,7 @@ export default function Predict() {
     <Layout title="Predict Sales">
       <div id="predict-override">
         <div className="new-predict">
-          
+
           <div className="top-section">
             <div className="header-row">
               <div className="profile">
@@ -292,14 +302,14 @@ export default function Predict() {
           </div>
 
           <div className="cards-container">
-            
+
             <div className="m-card predict-form-premium">
               <h2 className="section-title">New Prediction</h2>
-              
+
               <div className="v-form-group">
                 <label className="v-label">Select Product</label>
                 <div className="v-select-wrapper">
-                  <select 
+                  <select
                     className="v-select"
                     value={selectedProductId}
                     onChange={(e) => {
@@ -357,7 +367,7 @@ export default function Predict() {
 
               {error && <div className="v-error-pill">{error}</div>}
 
-              <button 
+              <button
                 className="v-primary-btn"
                 onClick={handlePredict}
                 disabled={predicting || !selectedProductId}
@@ -403,6 +413,12 @@ export default function Predict() {
                           <span className="h-label">Predicted</span>
                         </div>
                       )}
+                      <button className="h-delete-btn" onClick={(e) => handleDeleteHistory(e, p.id)}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -502,7 +518,15 @@ export default function Predict() {
         /* Result Card Styles */
         .predict-result-premium {
           background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-          color: white; border: none;
+          color: white !important; border: none;
+        }
+        .predict-result-premium :global(.stat-label),
+        .predict-result-premium :global(.res-badge) {
+          color: rgba(255,255,255,0.7) !important;
+        }
+        .predict-result-premium :global(.stat-value),
+        .predict-result-premium :global(.res-prod-name) {
+          color: white !important;
         }
         .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .res-badge {
@@ -553,6 +577,13 @@ export default function Predict() {
         .h-val { font-size: 16px; font-weight: 800; color: #1e1b4b; }
         .h-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
         .h-acc-badge { padding: 6px 12px; border-radius: 10px; color: white; font-size: 11px; font-weight: 800; }
+
+        .h-delete-btn {
+          background: none; border: none; color: #ef4444; padding: 6px; cursor: pointer;
+          opacity: 0; transition: opacity 0.2s; margin-left: 8px;
+        }
+        .history-item:hover .h-delete-btn { opacity: 0.6; }
+        .h-delete-btn:hover { opacity: 1 !important; transform: scale(1.1); }
 
         .loading-msg, .empty-msg { text-align: center; padding: 30px; color: #94a3b8; font-weight: 600; }
       `}</style>

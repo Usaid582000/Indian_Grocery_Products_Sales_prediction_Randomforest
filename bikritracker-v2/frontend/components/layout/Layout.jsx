@@ -4,22 +4,14 @@ import BottomNav from './BottomNav';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useRouter } from 'next/router';
 
 export default function Layout({ children, title }) {
   const { user, loading, logout } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('bikri-dark-mode') === 'true';
-    setDarkMode(saved);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('bikri-dark-mode', darkMode);
-  }, [darkMode]);
 
   useEffect(() => {
     if (!loading && !user) router.replace('/login');
@@ -31,9 +23,9 @@ export default function Layout({ children, title }) {
         <div className="page-loading-inner">
           <div className="page-loading-logo">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" width="32" height="32">
-              <rect width="32" height="32" rx="8" fill="var(--primary-light)"/>
+              <rect width="32" height="32" rx="8" fill="var(--primary-light)" />
               <path d="M5 22l5-10 6 5 5-10 6 11" stroke="var(--primary)" strokeWidth="2.8"
-                strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </svg>
           </div>
           <span className="spinner" style={{ width: 28, height: 28, borderWidth: 3 }} />
@@ -79,7 +71,7 @@ export default function Layout({ children, title }) {
           <div className="drawer-content">
             <div className="drawer-group">
               <h4 className="group-title">Preferences</h4>
-              <div className="drawer-item" onClick={() => setDarkMode(!darkMode)}>
+              <div className="drawer-item" onClick={toggleDarkMode}>
                 <div className="item-icon">{darkMode ? '🌙' : '☀️'}</div>
                 <div className="item-text">
                   <span className="item-label">Dark Mode</span>
@@ -224,54 +216,92 @@ export default function Layout({ children, title }) {
         .app-shell.dark-theme .logout-btn { background: rgba(239, 68, 68, 0.1); color: #f87171; }
         .app-shell.dark-theme .toggle-switch { background: #475569; }
 
+        /* Glassmorphism Bottom Nav for Dark Mode */
+        .app-shell.dark-theme :global(.bottom-nav-modern) {
+          background: rgba(30, 41, 59, 0.7) !important;
+          backdrop-filter: blur(12px) !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .app-shell.dark-theme :global(.nav-item) { color: #94a3b8 !important; }
+        .app-shell.dark-theme :global(.nav-item.active) { color: #818cf8 !important; }
+        .app-shell.dark-theme :global(.fab-label) { color: #94a3b8 !important; }
+
         /* Global UI Dark Styles */
         .app-shell.dark-theme :global(.m-card), 
-        .app-shell.dark-theme :global(.v-modal) { 
-          background-color: #1e293b !important; 
+        .app-shell.dark-theme :global(.v-modal),
+        .app-shell.dark-theme :global(.card),
+        .app-shell.dark-theme :global(.fab-popup-menu),
+        .app-shell.dark-theme :global(.tip-card-inner) { 
+          background-color: #111827 !important; 
           color: #f8fafc !important; 
-          box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+          border: 1px solid #1f2937 !important;
         }
         .app-shell.dark-theme :global(.new-dash),
         .app-shell.dark-theme :global(.new-inv),
         .app-shell.dark-theme :global(.new-predict),
-        .app-shell.dark-theme :global(#account-page-override) {
-          background-color: #0f172a !important;
+        .app-shell.dark-theme :global(#account-page-override),
+        .app-shell.dark-theme :global(.inventory-page) {
+          background-color: #030712 !important;
         }
         .app-shell.dark-theme :global(.card-title),
         .app-shell.dark-theme :global(.section-title),
         .app-shell.dark-theme :global(.h-label),
         .app-shell.dark-theme :global(.stat-label),
-        .app-shell.dark-theme :global(.item-sub) {
-          color: #94a3b8 !important;
+        .app-shell.dark-theme :global(.item-sub),
+        .app-shell.dark-theme :global(.insight-text),
+        .app-shell.dark-theme :global(.text-muted) {
+          color: #cbd5e1 !important; /* Lighter text for dark mode */
         }
         .app-shell.dark-theme :global(.card-val),
         .app-shell.dark-theme :global(.h-name),
         .app-shell.dark-theme :global(.h-val),
         .app-shell.dark-theme :global(.item-title),
-        .app-shell.dark-theme :global(.v-label) {
+        .app-shell.dark-theme :global(.drawer-name),
+        .app-shell.dark-theme :global(.welcome-title),
+        .app-shell.dark-theme :global(.v-label),
+        .app-shell.dark-theme :global(.product-name),
+        .app-shell.dark-theme :global(.product-price) {
           color: #f8fafc !important;
+        }
+        .app-shell.dark-theme :global(.search-container),
+        .app-shell.dark-theme :global(.filter-btn) {
+          background-color: #111827 !important;
+          border: 1px solid #1f2937 !important;
         }
         .app-shell.dark-theme :global(input),
         .app-shell.dark-theme :global(select),
         .app-shell.dark-theme :global(.v-input),
-        .app-shell.dark-theme :global(.v-select) {
-          background-color: #334155 !important;
-          border-color: #475569 !important;
+        .app-shell.dark-theme :global(.v-select),
+        .app-shell.dark-theme :global(.search-input) {
+          background-color: #1f2937 !important;
+          border-color: #334155 !important;
           color: white !important;
         }
         .app-shell.dark-theme :global(.list-item),
         .app-shell.dark-theme :global(.history-item),
-        .app-shell.dark-theme :global(.pl-item) {
-          border-bottom-color: #334155 !important;
+        .app-shell.dark-theme :global(.pl-item),
+        .app-shell.dark-theme :global(.product-card) {
+          background-color: #111827 !important;
+          border-bottom-color: #1f2937 !important;
+        }
+        .app-shell.dark-theme :global(.item-icon-circle),
+        .app-shell.dark-theme :global(.h-icon),
+        .app-shell.dark-theme :global(.pl-icon-box),
+        .app-shell.dark-theme :global(.p-icon-box) {
+          background-color: #1f2937 !important;
         }
         .app-shell.dark-theme :global(.divider) {
-          background-color: #334155 !important;
+          background-color: #1f2937 !important;
         }
         .app-shell.dark-theme :global(.v-primary-btn) {
           background-color: #6366f1 !important;
         }
         .app-shell.dark-theme :global(.v-modal-backdrop) {
-          background: rgba(0,0,0,0.8) !important;
+          background: rgba(0,0,0,0.85) !important;
+        }
+        .app-shell.dark-theme :global(.popup-arrow) {
+          background-color: #111827 !important;
         }
       `}</style>
     </div>
