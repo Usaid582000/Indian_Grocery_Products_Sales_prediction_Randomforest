@@ -9,6 +9,17 @@ import { useRouter } from 'next/router';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Sector } from 'recharts';
 import { addHistoryEntry } from '../lib/firestore';
 
+const CategoryIcon = ({ category }) => {
+  const cat = (category || '').toLowerCase();
+  if (cat.includes('grocery') || cat.includes('food')) return <span style={{ fontSize: 20 }}>🛒</span>;
+  if (cat.includes('drink') || cat.includes('beverage')) return <span style={{ fontSize: 20 }}>🥤</span>;
+  if (cat.includes('snack')) return <span style={{ fontSize: 20 }}>🍿</span>;
+  if (cat.includes('electronic')) return <span style={{ fontSize: 20 }}>🔌</span>;
+  if (cat.includes('accessory')) return <span style={{ fontSize: 20 }}>⌚</span>;
+  if (cat.includes('clothing')) return <span style={{ fontSize: 20 }}>👕</span>;
+  return <span style={{ fontSize: 20 }}>📦</span>;
+};
+
 const dummyChartData = [
   { name: 'Feb 1', line1: 400, line2: 600, line3: 200 },
   { name: 'Feb 4', line1: 300, line2: 400, line3: 350 },
@@ -628,7 +639,7 @@ export default function Dashboard() {
                     >
                       <div className="item-left">
                         <div className="item-icon-circle">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                          <CategoryIcon category={item.category} />
                         </div>
                         <div className="item-info">
                           <span className="item-title">{item.name}</span>
@@ -687,7 +698,6 @@ export default function Dashboard() {
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                     <option value="yearly">Yearly</option>
-                    <option value="specific">Specific Date</option>
                   </select>
                   <span className="card-sub">{topTimeframeLabel}</span>
                 </div>

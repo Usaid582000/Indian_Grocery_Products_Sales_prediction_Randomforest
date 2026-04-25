@@ -309,14 +309,6 @@ export default function Inventory() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
         
-        /* Aggressive TopBar Removal */
-        .top-bar, #top-bar, .TopBar_container__1abc, [class*="TopBar"] { 
-          display: none !important; 
-          height: 0 !important;
-          visibility: hidden !important;
-          pointer-events: none !important;
-        }
-
         body:has(#inventory-override) .app-main { padding: 0 !important; margin: 0 !important; }
         body:has(#inventory-override) .app-content { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
         

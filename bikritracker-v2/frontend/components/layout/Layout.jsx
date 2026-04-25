@@ -33,17 +33,17 @@ export default function Layout({ children, title }) {
 
   if (!user) return null;
 
+  const hideShell = router.pathname === '/dashboard' || router.pathname === '/inventory' || router.pathname === '/predict';
+
   return (
     <div className="app-shell">
       <Head>
         <title>{title && title != "Dashboard" ? `${title} - BikriTracker` : 'BikriTracker'}</title>
       </Head>
-      <Sidebar />
-      <div className="app-main">
-        {!(router.pathname === '/dashboard' || router.pathname === '/inventory') && (
-          <TopBar title={title} />
-        )}
-        <main className="app-content">
+      {!hideShell && <Sidebar />}
+      <div className="app-main" style={hideShell ? { padding: 0 } : {}}>
+        {!hideShell && <TopBar title={title} />}
+        <main className="app-content" style={hideShell ? { padding: 0, maxWidth: '100%', margin: 0 } : {}}>
           {children}
         </main>
       </div>
