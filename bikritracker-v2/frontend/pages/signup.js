@@ -5,9 +5,9 @@ import { useAuth } from '../contexts/AuthContext';
 import Head from 'next/head';
 
 const FIREBASE_ERRORS = {
-  'auth/email-already-in-use':   'An account with this email already exists.',
-  'auth/invalid-email':          'Please enter a valid email address.',
-  'auth/weak-password':          'Password must be at least 6 characters.',
+  'auth/email-already-in-use': 'An account with this email already exists.',
+  'auth/invalid-email': 'Please enter a valid email address.',
+  'auth/weak-password': 'Password must be at least 6 characters.',
   'auth/network-request-failed': 'Network error. Check your connection.',
 };
 
@@ -20,12 +20,12 @@ export default function Signup() {
   const router = useRouter();
 
   const [storeName, setStoreName] = useState('');
-  const [email,     setEmail]     = useState('');
-  const [password,  setPassword]  = useState('');
-  const [confirm,   setConfirm]   = useState('');
-  const [showPass,  setShowPass]  = useState(false);
-  const [error,     setError]     = useState('');
-  const [loading,   setLoading]   = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (!authLoading && user) {
     router.replace('/dashboard');
@@ -35,7 +35,7 @@ export default function Signup() {
   const strength = (() => {
     if (!password) return 0;
     let s = 0;
-    if (password.length >= 6)  s++;
+    if (password.length >= 6) s++;
     if (password.length >= 10) s++;
     if (/[A-Z]/.test(password) && /[0-9]/.test(password)) s++;
     return s;
@@ -75,23 +75,26 @@ export default function Signup() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="logo-icon">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="10" fill="rgba(255,255,255,0.15)"/>
-              <path d="M5 22l5-10 6 5 5-10 6 11" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img
+              src="/favicon.png"
+              alt="BikriTracker Logo"
+              width="45"
+              height="45"
+              style={{ objectFit: 'contain' }}
+            />
           </div>
           <span className="logo-text">BikriTracker</span>
         </div>
 
         <div className="auth-header">
-          <h1>Create account 🚀</h1>
+          <h1>Create account !</h1>
           <p>Set up your store in seconds</p>
         </div>
 
         {error && (
           <div className="error-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+              <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
             </svg>
             {error}
           </div>
@@ -103,7 +106,7 @@ export default function Signup() {
             <label>Store name</label>
             <div className="input-wrap">
               <svg className="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/>
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><path d="M9 22V12h6v10" />
               </svg>
               <input
                 type="text"
@@ -121,7 +124,7 @@ export default function Signup() {
             <label>Email address</label>
             <div className="input-wrap">
               <svg className="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M3 8l9 6 9-6M3 8v10a1 1 0 001 1h16a1 1 0 001-1V8M3 8a1 1 0 011-1h16a1 1 0 011 1"/>
+                <path d="M3 8l9 6 9-6M3 8v10a1 1 0 001 1h16a1 1 0 001-1V8M3 8a1 1 0 011-1h16a1 1 0 011 1" />
               </svg>
               <input
                 type="email"
@@ -139,7 +142,7 @@ export default function Signup() {
             <label>Password</label>
             <div className="input-wrap">
               <svg className="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+                <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
               </svg>
               <input
                 type={showPass ? 'text' : 'password'}
@@ -152,13 +155,13 @@ export default function Signup() {
               <button type="button" className="eye-btn" onClick={() => setShowPass(s => !s)}>
                 {showPass ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
+                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
                   </svg>
                 ) : (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
                   </svg>
                 )}
               </button>
@@ -182,7 +185,7 @@ export default function Signup() {
             <label>Confirm password</label>
             <div className="input-wrap">
               <svg className="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M20 7l-8 8-4-4"/>
+                <path d="M20 7l-8 8-4-4" />
               </svg>
               <input
                 type={showPass ? 'text' : 'password'}
@@ -221,7 +224,7 @@ export default function Signup() {
       <style jsx>{`
         .auth-shell {
           min-height: 100vh;
-          background: linear-gradient(135deg, #0f0e1f 0%, #1a183a 50%, #0f1628 100%);
+          background: linear-gradient(135deg, #122e14ff 0%, #27006eff 50%, #06236dff 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -237,9 +240,9 @@ export default function Signup() {
         .blob-2 { width: 350px; height: 350px; background: radial-gradient(circle, #8b5cf6, transparent); bottom: -80px; right: -80px; }
 
         .auth-card {
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(228, 228, 228, 0.04);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border);
           border-radius: 32px;
           padding: 36px 32px;
           width: 100%; max-width: 420px;

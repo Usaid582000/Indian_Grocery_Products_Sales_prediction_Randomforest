@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import '../styles/landing.css';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 

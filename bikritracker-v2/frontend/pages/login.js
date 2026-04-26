@@ -5,11 +5,11 @@ import { useAuth } from '../contexts/AuthContext';
 import Head from 'next/head';
 
 const FIREBASE_ERRORS = {
-  'auth/user-not-found':         'No account found with this email.',
-  'auth/wrong-password':         'Incorrect password. Please try again.',
-  'auth/invalid-credential':     'Incorrect email or password.',
-  'auth/invalid-email':          'Please enter a valid email address.',
-  'auth/too-many-requests':      'Too many attempts. Please wait a moment.',
+  'auth/user-not-found': 'No account found with this email.',
+  'auth/wrong-password': 'Incorrect password. Please try again.',
+  'auth/invalid-credential': 'Incorrect email or password.',
+  'auth/invalid-email': 'Please enter a valid email address.',
+  'auth/too-many-requests': 'Too many attempts. Please wait a moment.',
   'auth/network-request-failed': 'Network error. Check your connection.',
 };
 
@@ -21,11 +21,11 @@ export default function Login() {
   const { login, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [email,    setEmail]    = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [error,    setError]    = useState('');
-  const [loading,  setLoading]  = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (!authLoading && user) {
     router.replace('/dashboard');
@@ -62,23 +62,21 @@ export default function Login() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="logo-icon">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="10" fill="rgba(255,255,255,0.15)"/>
-              <path d="M5 22l5-10 6 5 5-10 6 11" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img src="/favicon.png" alt="Logo" width="45" height="45" style={{ objectFit: 'contain' }}
+            />
           </div>
           <span className="logo-text">BikriTracker</span>
         </div>
 
         <div className="auth-header">
-          <h1>Welcome back 👋</h1>
+          <h1>Welcome back...</h1>
           <p>Log in to your store dashboard</p>
         </div>
 
         {error && (
           <div className="error-banner">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+              <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
             </svg>
             {error}
           </div>
@@ -89,7 +87,7 @@ export default function Login() {
             <label>Email address</label>
             <div className="input-wrap">
               <svg className="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M3 8l9 6 9-6M3 8v10a1 1 0 001 1h16a1 1 0 001-1V8M3 8a1 1 0 011-1h16a1 1 0 011 1"/>
+                <path d="M3 8l9 6 9-6M3 8v10a1 1 0 001 1h16a1 1 0 001-1V8M3 8a1 1 0 011-1h16a1 1 0 011 1" />
               </svg>
               <input
                 type="email"
@@ -107,7 +105,7 @@ export default function Login() {
             <label>Password</label>
             <div className="input-wrap">
               <svg className="field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+                <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
               </svg>
               <input
                 type={showPass ? 'text' : 'password'}
@@ -120,13 +118,13 @@ export default function Login() {
               <button type="button" className="eye-btn" onClick={() => setShowPass(s => !s)} aria-label="Toggle password">
                 {showPass ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
+                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
                   </svg>
                 ) : (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
                   </svg>
                 )}
               </button>
@@ -155,7 +153,7 @@ export default function Login() {
       <style jsx>{`
         .auth-shell {
           min-height: 100vh;
-          background: linear-gradient(135deg, #0f0e1f 0%, #1a183a 50%, #0f1628 100%);
+          background: linear-gradient(135deg, #122e14ff 0%, #27006eff 50%, #06236dff 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -168,7 +166,7 @@ export default function Login() {
           position: absolute;
           border-radius: 50%;
           filter: blur(80px);
-          opacity: 0.25;
+          opacity: 0.35;
           pointer-events: none;
         }
         .blob-1 {
@@ -178,14 +176,14 @@ export default function Login() {
         }
         .blob-2 {
           width: 350px; height: 350px;
-          background: radial-gradient(circle, #8b5cf6, transparent);
+          background: radial-gradient(circle, var(--btn-purple), transparent);
           bottom: -80px; right: -80px;
         }
 
         .auth-card {
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(228, 228, 228, 0.04);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border);
           border-radius: 32px;
           padding: 40px 36px;
           width: 100%;
